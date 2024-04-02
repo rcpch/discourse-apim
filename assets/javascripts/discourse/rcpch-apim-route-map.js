@@ -3,5 +3,5 @@ export default {
   path: "u/:username",
   map() {
     this.route("api-keys");
-  },
+  }
 };

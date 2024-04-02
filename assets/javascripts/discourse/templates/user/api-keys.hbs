@@ -1,3 +1,13 @@
 <div class="user-content" id="user-content">
-  It lives!
+  {{#if @model.apiKeys }}
+    woo
+  {{else}}
+    <form method="post">
+      <input
+        class="btn" 
+        type="submit"
+        value="Generate API key"
+      />
+    </form>
+  {{/if}}
 </div>

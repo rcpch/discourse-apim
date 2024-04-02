@@ -7,9 +7,16 @@
 register_svg_icon "server"
 
 after_initialize do
+  require_relative "app/controllers/api_keys_controller.rb"
+
   Discourse::Application.routes.append do
     %w[users u].each do |root_path|
       get "#{root_path}/:username/api-keys" => "users#show",
+        :constraints => {
+          username: RouteFormat.username,
+        }
+      
+      post "#{root_path}/:username/api-keys" => 'apikeys#create',
         :constraints => {
           username: RouteFormat.username,
         }

@@ -1,5 +1,9 @@
 import Route from "@ember/routing/route";
 
-export default Route.extend({
-  templateName: "user/api-keys",
-});
+export default class UserApiKeysRoute extends Route {
+  model() {
+    return {
+      apiKeys: null
+    };
+  }
+}
