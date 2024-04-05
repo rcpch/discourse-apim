@@ -1,7 +1,21 @@
 <div class="user-content" id="user-content">
-  {{#if @model.apiKeys }}
-    woo
-  {{else}}
-    <button {{action "createApiKey"}} class="btn">Generate API key</button>
-  {{/if}}
+  <table>
+    <thead>
+      <tr>
+        <td>Product</td>
+        <td>Key</td>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each model.api_keys as |registration|}}
+        <tr>
+          <td>{{registration.product}}</td>
+          <td>{{registration.key}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  
+
+  <button {{action "createApiKey"}} class="btn">Generate API key</button>
 </div>
