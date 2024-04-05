@@ -1,6 +1,15 @@
 import Controller from "@ember/controller";
-import { tracked } from "@glimmer/tracking";
+import { ajax } from "discourse/lib/ajax";
 
-export default class UserApiKeysController extends Controller {
-  
-}
+export default Controller.extend({
+  actions: {
+    createApiKey: async () => {
+      const response = await ajax(window.location.pathname, {
+        method: 'POST'
+      });
+
+
+      console.log('create API key', response);
+    }
+  }
+});
