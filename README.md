@@ -2,6 +2,18 @@
 
 RCPCH API access management within Discourse
 
+## Setup
+
+- Ensure Docker is installed and running
+- Check out the main Discourse GitHub repo (https://github.com/discourse/discourse)
+- Check out this repository
+- Create a symlink between the main Discourse repo and this repo
+  - In the Discourse repo run `ln -s [location of this repo] plugins/discourse-apim`
+- Follow the [Discourse Docker development instructions](https://meta.discourse.org/t/install-discourse-for-development-using-docker/102009#step-2-start-container-6)
+  - `d/boot_dev --init`
+  - Run the Rails backend in one terminal: `d/rails s`
+  - Run the Ember frontend in another: `d/ember-cli`
+
 ## Scope
 
 - Request new API credentials for our free to access APIs
