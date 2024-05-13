@@ -37,6 +37,11 @@ We will not create products for paid access. In that case we manually create an
 Azure APIM subscription and assign it to the API directly. We then share the
 credentials directly with the paying customer as appropriate.
 
+We will talk to the API management API directly:
+
+- https://learn.microsoft.com/en-us/rest/api/apimanagement/apimanagementrest/api-management-rest
+- https://learn.microsoft.com/en-us/rest/api/apimanagement/apimanagementrest/azure-api-management-rest-api-authentication#ProgrammaticallyCreateToken
+
 To generate the list of APIs we will combine:
 
 - [Product - List By Service](https://learn.microsoft.com/en-us/rest/api/apimanagement/product/list-by-service?view=rest-apimanagement-2022-08-01&tabs=HTTP)
