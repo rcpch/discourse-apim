@@ -1,4 +1,13 @@
 plugins:
+  discourse_apim_azure_service_name:
+    type: string
+    default: ""
+  discourse_apim_azure_subscription_id:
+    type: string
+    default: ""
+  discourse_apim_azure_resource_group_name:
+    type: string
+    default: ""
   discourse_apim_azure_management_key:
     type: string
     default: ""

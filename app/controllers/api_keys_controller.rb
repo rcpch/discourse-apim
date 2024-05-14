@@ -1,5 +1,5 @@
 require 'net/http'
-require_relative '../../services/azure_token'
+require_relative '../../services/azure_apim'
 
 class ApikeysController < ::ApplicationController
   @@apim_base = 'https://rcpch-apim.management.azure-api.net/subscriptions/99e313f5-79fe-4480-b867-8daf2800cf22/resourceGroups/RCPCH-Dev-API-Growth/providers/Microsoft.ApiManagement/service/rcpch-apim'
@@ -12,32 +12,16 @@ class ApikeysController < ::ApplicationController
   end
 
   def list
-    username = azure_safe_username(params[:username])
-    url = UrlHelper.encode_and_parse("#{@@apim_base}/users/michael-barton/subscriptions?api-version=2022-08-01")
-    # url = UrlHelper.encode_and_parse("#{@@apim_base}/users/#{username}/subscriptions?api-version=2022-08-01")
-
-    request =  Net::HTTP::Get.new(url)
-    request['Authorization'] = "SharedAccessSignature #{AzureToken.generate}"
-
-    response = Net::HTTP.start(url.host, url.port, :use_ssl => true) do |http|
-      http.request(request)
-    end
-
-    json = JSON.parse(response.body)
-    puts "!!!!! #{json}"
-
-    if json['error'] and json['error']['code'] == 'ResourceNotFound'
-      ret = []
-    else
-      fake_api_key = {}
-      fake_api_key['product'] = 'Growth Charts'
-      fake_api_key['key'] = params[:username]
-
-      ret = [fake_api_key]
-      # ret = json['value'].map { |subscription|
-      #   subscription
-      # }
-    end
+    products = AzureAPIM.list_products.select { |product|
+      product["properties"]["state"] == "published"
+    }
+    
+    ret = products.map { |product|
+      {
+        "name": product["properties"]["displayName"] || product["name"],
+        "key": params[:username]
+      }
+    }
 
     render json: ret
   end
