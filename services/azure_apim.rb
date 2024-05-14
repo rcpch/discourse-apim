@@ -1,10 +1,13 @@
 require "base64"
 require "net/http"
+require "json"
 
 # @@apim_base = 'https://rcpch-apim.management.azure-api.net/subscriptions/99e313f5-79fe-4480-b867-8daf2800cf22/resourceGroups/RCPCH-Dev-API-Growth/providers/Microsoft.ApiManagement/service/rcpch-apim'
 
 class AzureAPIMError < StandardError
-  def initialize(msg, code=Nil)
+  attr_reader :code
+
+  def initialize(msg, code=nil)
     @code = code
     super(msg)
   end
@@ -32,11 +35,20 @@ class AzureAPIM
     "uid=integration&ex=#{expiry}&sn=#{sn}"
   end
 
-  def self.get_json(endpoint)
+  def self.request(method, endpoint, body = nil)
     url = UrlHelper.encode_and_parse("#{AzureAPIM.base_url}/#{endpoint}?api-version=2022-08-01")
 
-    request =  Net::HTTP::Get.new(url)
+    request = method.new(url)
     request['Authorization'] = "SharedAccessSignature #{AzureAPIM.generate_token}"
+
+    if body
+      request['Content-Type'] = "application/json"
+      request.body = body
+    end
+
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts "!!!!!!!!!!! #{body}"
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
     response = Net::HTTP.start(url.host, url.port, :use_ssl => true) do |http|
       http.request(request)
@@ -44,11 +56,10 @@ class AzureAPIM
 
     json = JSON.parse(response.body)
 
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!"
-    puts "!!!!!!!! #{json}"
-    puts '!!!!!!!!!!!!!!!!!!!!!!!!'
-
     if json['error']
+      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      puts "!!!!!!!!!!! #{json}"
+      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       raise AzureAPIMError.new json['error']['message'] || 'Unknown AzureAPIM error', json['error']['code']
     else
       json['value']
@@ -56,6 +67,22 @@ class AzureAPIM
   end
 
   def self.list_products
-    AzureAPIM.get_json("products")
+    AzureAPIM.request(Net::HTTP::Get, "products")
+  end
+
+  def self.list_subscriptions(user:)
+    AzureAPIM.request(Net::HTTP::Get, "users/#{user}/subscriptions")
+  end
+
+  def self.create_or_update_user(user:, email:, first_name:, last_name:)
+    body = {
+      "properties": {
+        "email": email,
+        "firstName": first_name,
+        "lastName": last_name
+      }
+    }
+
+    AzureAPIM.request(Net::HTTP::Put, "users/#{user}", JSON.generate(body))
   end
 end
