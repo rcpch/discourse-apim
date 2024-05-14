@@ -10,12 +10,14 @@
       {{#each model.api_keys as |registration|}}
         <tr>
           <td>{{registration.displayName}}</td>
-          <td>{{registration.key}}</td>
+          {{#if registration.enabled}}
+            <button {{action "showApiKey"}} class="btn">Show API key</button>
+          {{else}}
+            <button {{action "createApiKey" registration.name}} class="btn">Generate API key</button>
+          {{/if}}
         </tr>
       {{/each}}
     </tbody>
   </table>
-  
-
-  <button {{action "createApiKey"}} class="btn">Generate API key</button>
 </div>
+

@@ -3,7 +3,9 @@ import { ajax } from "discourse/lib/ajax";
 
 export default Controller.extend({
   actions: {
-    createApiKey: async function() {
+    createApiKey: async function(name) {
+      console.log({ name });
+
       const { api_keys } = await ajax(window.location.pathname, {
         method: 'POST'
       });
