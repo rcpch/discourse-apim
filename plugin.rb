@@ -11,6 +11,11 @@ after_initialize do
 
   Discourse::Application.routes.append do
     %w[users u].each do |root_path|
+      get "#{root_path}/:username/api-keys.json" => "apikeys#list",
+        :constraints => {
+          username: RouteFormat.username,
+        }
+
       get "#{root_path}/:username/api-keys" => "users#show",
         :constraints => {
           username: RouteFormat.username,

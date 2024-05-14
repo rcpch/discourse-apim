@@ -3,7 +3,7 @@ require "base64"
 class AzureToken
   def self.generate
     identifier = "integration"
-    key = "TODO CONFIG"
+    key = SiteSetting.discourse_apim_azure_management_key
     
     expiry = (Time.now + (60 * 60)).strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
     string_to_sign = "#{identifier}\n#{expiry}"

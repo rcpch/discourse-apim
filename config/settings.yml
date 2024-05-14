@@ -1,0 +1,4 @@
+plugins:
+  discourse_apim_azure_management_key:
+    type: string
+    default: ""
