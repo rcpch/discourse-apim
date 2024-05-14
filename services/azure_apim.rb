@@ -44,11 +44,11 @@ class AzureAPIM
     if body
       request['Content-Type'] = "application/json"
       request.body = body
-    end
 
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    puts "!!!!!!!!!!! #{body}"
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      puts "!!!!!!!!!!! #{body}"
+      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    end
 
     response = Net::HTTP.start(url.host, url.port, :use_ssl => true) do |http|
       http.request(request)
@@ -56,10 +56,11 @@ class AzureAPIM
 
     json = JSON.parse(response.body)
 
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts "!!!!!!!!!!! #{json}"
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
     if json['error']
-      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-      puts "!!!!!!!!!!! #{json}"
-      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       raise AzureAPIMError.new json['error']['message'] || 'Unknown AzureAPIM error', json['error']['code']
     else
       json['value']

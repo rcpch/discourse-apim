@@ -3,13 +3,13 @@
     <thead>
       <tr>
         <td>Product</td>
-        <td>Key</td>
+        <td>Action</td>
       </tr>
     </thead>
     <tbody>
       {{#each model.api_keys as |registration|}}
         <tr>
-          <td>{{registration.name}}</td>
+          <td>{{registration.displayName}}</td>
           <td>{{registration.key}}</td>
         </tr>
       {{/each}}

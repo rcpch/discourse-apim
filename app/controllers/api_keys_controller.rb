@@ -8,6 +8,12 @@ class ApikeysController < ::ApplicationController
     email.gsub(/[^A-Z,a-z]+/, "-")
   end
 
+  def user_has_key_for_product(product, subscriptions)
+    subscriptions.find { |subscription|
+      subscription["properties"]["scope"] == product["id"]
+    } != nil
+  end
+
   def list
     user = User.find_by_username(params[:username])
     username = self.azure_safe_username(user.email)
@@ -33,8 +39,9 @@ class ApikeysController < ::ApplicationController
 
     products_for_user = published_products.map { |product|
       {
-        "name": product["properties"]["displayName"] || product["name"],
-        "key": params[:username]
+        "name": product["name"],
+        "displayName": product["properties"]["displayName"] || product["name"],
+        "enabled": self.user_has_key_for_product(product, subscriptions)
       }
     } 
     
