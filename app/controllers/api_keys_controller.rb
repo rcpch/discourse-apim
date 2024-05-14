@@ -12,15 +12,21 @@ class ApikeysController < ::ApplicationController
   end
 
   def list
-    products = AzureAPIM.list_products.select { |product|
+    products = AzureAPIM.list_products
+
+    published_products = products.select { |product|
       product["properties"]["state"] == "published"
     }
-    
-    ret = products.map { |product|
+
+    products_for_user = published_products.map { |product|
       {
         "name": product["properties"]["displayName"] || product["name"],
         "key": params[:username]
       }
+    } 
+    
+    ret = {
+      "api_keys": products_for_user
     }
 
     render json: ret
@@ -47,7 +53,7 @@ class ApikeysController < ::ApplicationController
     # render_json_dump JSON.parse(response.body)
 
     fake_api_key = {}
-    fake_api_key['product'] = 'Growth Charts'
+    fake_api_key['name'] = 'Growth Charts'
     fake_api_key['key'] = azure_safe_username
 
     ret = {}
