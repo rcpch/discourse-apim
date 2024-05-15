@@ -86,4 +86,18 @@ class AzureAPIM
 
     AzureAPIM.request(Net::HTTP::Put, "users/#{user}", JSON.generate(body))
   end
+
+  def self.create_subscription_to_product(user:, product:, email:)
+    sid = "#{product}-#{user}"
+
+    body = {
+      "properties": {
+        "displayName": "#{product} #{email}",
+        "scope": "/products/#{product}",
+        "ownerId": "/users/#{user}"
+      }
+    }
+
+    AzureAPIM.request(Net::HTTP::Put, "subscriptions/#{sid}", JSON.generate(body))
+  end
 end

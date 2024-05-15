@@ -21,7 +21,7 @@ after_initialize do
           username: RouteFormat.username,
         }
       
-      post "#{root_path}/:username/api-keys" => 'apikeys#create',
+      post "#{root_path}/:username/api-keys/:product" => 'apikeys#create',
         :constraints => {
           username: RouteFormat.username,
         }

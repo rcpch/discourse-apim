@@ -64,6 +64,12 @@ class ApikeysController < ::ApplicationController
       last_name: "placeholder"
     )
 
+    AzureAPIM.create_subscription_to_product(
+      user: username,
+      email: user.email,
+      product: params[:product]
+    )
+
     # uri = URI.parse("https://rcpch-apim.management.azure-api.net/subscriptions/99e313f5-79fe-4480-b867-8daf2800cf22/resourceGroups/RCPCH-Dev-API-Growth/providers/Microsoft.ApiManagement/service/rcpch-apim/users/mtest-rcpch-ac-uk?api-version=2022-08-0")
     # request = Net::HTTP::Put.new(uri)
     # request["Accept"] = "application/json"

@@ -6,7 +6,7 @@ export default Controller.extend({
     createApiKey: async function(name) {
       console.log({ name });
 
-      const { api_keys } = await ajax(window.location.pathname, {
+      const { api_keys } = await ajax(`${window.location.pathname}/${name}`, {
         method: 'POST'
       });
 
