@@ -15,7 +15,7 @@ class ApikeysController < ::ApplicationController
   end
 
   def list
-    user = User.find_by_username(params[:username])
+    user = current_user
     username = self.azure_safe_username(user.email)
 
     # Everything you could have an API key for
@@ -53,7 +53,7 @@ class ApikeysController < ::ApplicationController
   end
 
   def create
-    user = User.find_by_username(params[:username])
+    user = current_user
     username = self.azure_safe_username(user.email)
 
     AzureAPIM.create_or_update_user(
