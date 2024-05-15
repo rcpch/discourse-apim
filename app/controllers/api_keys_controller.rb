@@ -58,12 +58,15 @@ class ApikeysController < ::ApplicationController
     user = current_user
     username = self.azure_safe_username(user.email)
 
+    # Required by Azure but we don't need them
+    # Fill them in with data that doesn't look bad in their UI
+    first_name, last_name = user.email.split("@")
+
     AzureAPIM.create_or_update_user(
       user: username,
       email: user.email,
-      # Required by Azure but we don't need them
-      first_name: "placeholder",
-      last_name: "placeholder"
+      first_name: first_name,
+      last_name: last_name || first_name
     )
 
     AzureAPIM.create_subscription_to_product(
