@@ -25,6 +25,13 @@ after_initialize do
         :constraints => {
           username: RouteFormat.username,
         }
+      
+      # This is a POST, following the upstream Azure API
+      # presumably a protection against XSRF 
+      post "#{root_path}/:username/api-keys/:product/keys" => 'apikeys#show',
+        :constraints => {
+          username: RouteFormat.username,
+        }
     end
   end
 end

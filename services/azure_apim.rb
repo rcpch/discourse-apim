@@ -63,7 +63,7 @@ class AzureAPIM
     if json['error']
       raise AzureAPIMError.new json['error']['message'] || 'Unknown AzureAPIM error', json['error']['code']
     else
-      json['value']
+      json['value'] || json
     end
   end
 
@@ -99,5 +99,11 @@ class AzureAPIM
     }
 
     AzureAPIM.request(Net::HTTP::Put, "subscriptions/#{sid}", JSON.generate(body))
+  end
+
+  def self.show_api_keys(user:, product:)
+    sid = "#{product}-#{user}"
+
+    AzureAPIM.request(Net::HTTP::Post, "subscriptions/#{sid}/listSecrets")
   end
 end

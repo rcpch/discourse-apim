@@ -1,15 +1,27 @@
 import Route from "@ember/routing/route";
-import { A } from '@ember/array';
 import { action } from '@ember/object';
+import { tracked } from '@glimmer/tracking';
 import { ajax } from "discourse/lib/ajax";
+
+class ApiKeyRow {
+  @tracked apiKey;
+
+  constructor(product, displayName, enabled) {
+    this.product = product;
+    this.displayName = displayName;
+    this.enabled = enabled;
+  }
+}
 
 export default class UserApiKeysRoute extends Route {
   async model() {
     const { api_keys } = await ajax(`${window.location.pathname}.json`);
 
-    return {
-      api_keys: A(api_keys)
-    }
+    const rows = api_keys.map(({ product, displayName, enabled }) =>
+      new ApiKeyRow(product, displayName, enabled)
+    );
+
+    return rows;
   }
 
   @action
