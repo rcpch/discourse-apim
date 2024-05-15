@@ -1,5 +1,6 @@
 import Route from "@ember/routing/route";
 import { A } from '@ember/array';
+import { action } from '@ember/object';
 import { ajax } from "discourse/lib/ajax";
 
 export default class UserApiKeysRoute extends Route {
@@ -9,5 +10,10 @@ export default class UserApiKeysRoute extends Route {
     return {
       api_keys: A(api_keys)
     }
+  }
+
+  @action
+  refreshModel() {
+    this.refresh()
   }
 }

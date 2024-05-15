@@ -1,17 +1,19 @@
 import Controller from "@ember/controller";
+import { action } from '@ember/object';
 import { ajax } from "discourse/lib/ajax";
 
-export default Controller.extend({
-  actions: {
-    createApiKey: async function(name) {
-      console.log({ name });
+export default class UserApiKeysController extends Controller {
+  @action
+  async createApiKey(name) {
+    console.log({ name, target: this.target, router: this.target.get('router') }, this);
 
-      const { api_keys } = await ajax(`${window.location.pathname}/${name}`, {
-        method: 'POST'
-      });
+    const { api_keys } = await ajax(`${window.location.pathname}/${name}`, {
+      method: 'POST'
+    });
 
-      this.model.api_keys.pushObject(api_keys[0]);
-    }
+    // apparently I have to send an action here rather than just getting the router and calling refresh
+    // aren't javascript frameworks wonderful they really make life easy
+    this.send("refreshModel");
   }
-});
+}
 

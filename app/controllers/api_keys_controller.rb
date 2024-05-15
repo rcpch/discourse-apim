@@ -70,27 +70,6 @@ class ApikeysController < ::ApplicationController
       product: params[:product]
     )
 
-    # uri = URI.parse("https://rcpch-apim.management.azure-api.net/subscriptions/99e313f5-79fe-4480-b867-8daf2800cf22/resourceGroups/RCPCH-Dev-API-Growth/providers/Microsoft.ApiManagement/service/rcpch-apim/users/mtest-rcpch-ac-uk?api-version=2022-08-0")
-    # request = Net::HTTP::Put.new(uri)
-    # request["Accept"] = "application/json"
-
-    # req_options = {
-    #   use_ssl: uri.scheme == "https",
-    # }
-
-    # response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-    #   http.request(request)
-    # end
-
-    # render_json_dump JSON.parse(response.body)
-
-    fake_api_key = {}
-    fake_api_key['name'] = 'Growth Charts'
-    fake_api_key['key'] = username
-
-    ret = {}
-    ret['api_keys'] = [fake_api_key]
-
-    render json: ret
+    head 201
   end
 end
