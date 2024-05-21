@@ -32,6 +32,11 @@ after_initialize do
         :constraints => {
           username: RouteFormat.username,
         }
+      
+      get "#{root_path}/:username/api-keys/usage" => 'apikeys#usage',
+        :constraints => {
+          username: RouteFormat.username,
+        }
     end
   end
 end

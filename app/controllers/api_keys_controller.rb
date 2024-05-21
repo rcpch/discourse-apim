@@ -89,4 +89,16 @@ class ApikeysController < ::ApplicationController
 
     render json: ret
   end
+
+  def usage
+    start_time = params[:start] ? DateTime.parse(params[:start]) : DateTime.now.beginning_of_month
+    end_time = params[:end] ? DateTime.parse(params[:end]) : nil
+
+    ret = AzureAPIM.get_usage(
+      start_time: start_time,
+      end_time: end_time
+    )
+
+    render json: ret
+  end
 end

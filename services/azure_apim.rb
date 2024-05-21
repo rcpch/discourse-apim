@@ -35,8 +35,15 @@ class AzureAPIM
     "uid=integration&ex=#{expiry}&sn=#{sn}"
   end
 
-  def self.request(method, endpoint, body = nil)
-    url = UrlHelper.encode_and_parse("#{AzureAPIM.base_url}/#{endpoint}?api-version=2022-08-01")
+  def self.request(method, endpoint, params = {}, body = nil)
+    params['api-version'] = '2022-08-01'
+    param_string = params.map { |v| v.join("=") }.join("&")
+
+    url = UrlHelper.encode_and_parse("#{AzureAPIM.base_url}/#{endpoint}?#{param_string}")
+
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts "!!!!!!!!!!! #{url} #{param_string}"
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
     request = method.new(url)
     request['Authorization'] = "SharedAccessSignature #{AzureAPIM.generate_token}"
@@ -105,5 +112,24 @@ class AzureAPIM
     sid = "#{product}-#{user}"
 
     AzureAPIM.request(Net::HTTP::Post, "subscriptions/#{sid}/listSecrets")
+  end
+
+  def self.get_usage(start_time:, end_time:)
+    fmt = "%Y-%m-%dT%H:%M:%S"
+
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts "!!!!!!!!!!! #{start_time} #{end_time}"
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+    start_time_clause = "timestamp ge datetime'#{start_time.strftime(fmt)}'"
+
+    end_time_clause = ""
+    if end_time
+      end_time_clause = " and timestamp le '#{end_time.strftime(fmt)}'"
+    end
+
+    AzureAPIM.request(Net::HTTP::Get, "reports/bySubscription", params = {
+      "$filter": "#{start_time_clause}#{end_time_clause}"
+    })
   end
 end

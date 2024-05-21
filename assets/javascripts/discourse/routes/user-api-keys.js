@@ -15,6 +15,9 @@ class ApiKeyRow {
 
 export default class UserApiKeysRoute extends Route {
   async model() {
+    const resp = await ajax(`${window.location.pathname}/usage`);
+    console.log({ resp });
+
     const { api_keys } = await ajax(`${window.location.pathname}.json`);
 
     const rows = api_keys.map(({ product, displayName, enabled }) =>
