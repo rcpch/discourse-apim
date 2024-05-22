@@ -96,14 +96,24 @@ class ApimController < ::ApplicationController
     start_time = params[:start] ? DateTime.parse(params[:start]) : DateTime.now.beginning_of_month
     end_time = params[:end] ? DateTime.parse(params[:end]) : nil
 
-    ret = AzureAPIM.instance.get_usage(
+    primary = AzureAPIM.instance.get_usage(
       start_time: start_time,
       end_time: end_time
     )
 
-    puts '!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-    puts "!!!!!!!!!!!!!! #{AzureAPIM.additional_reporting_instance}"
-    puts '!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+    additional = []
+
+    if AzureAPIM.additional_reporting_instance
+      additional = AzureAPIM.additional_reporting_instance.get_usage(
+        start_time: start_time,
+        end_time: end_time
+      )
+    end
+
+    ret = {
+      "primary": primary,
+      "additional": additional
+    }
 
     render json: ret
   end

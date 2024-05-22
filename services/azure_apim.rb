@@ -41,14 +41,6 @@ class AzureAPIM
     @@instance ||= (AzureAPI.new(**config) if config['service_name'] or config['management_key'])
   end
 
-  # def self.base_url
-  #   service_name = SiteSetting.discourse_apim_azure_service_name
-  #   subscription_id = SiteSetting.discourse_apim_azure_subscription_id
-  #   resource_group_name = SiteSetting.discourse_apim_azure_resource_group_name
-
-  #   "https://#{service_name}.management.azure-api.net/subscriptions/#{subscription_id}/resourceGroups/#{resource_group_name}/providers/Microsoft.ApiManagement/service/#{service_name}"
-  # end
-
   def generate_token
     identifier = "integration"
     
