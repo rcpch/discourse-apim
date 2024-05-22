@@ -38,7 +38,9 @@ class AzureAPIM
       management_key: SiteSetting.discourse_apim_azure_additional_reporting_management_key
     }
 
-    @@instance ||= (AzureAPI.new(**config) if config['service_name'] or config['management_key'])
+    if config[:service_name] and config[:management_key]
+      @@additional_reporting_instance ||= AzureAPIM.new(**config)
+    end
   end
 
   def generate_token
@@ -147,7 +149,7 @@ class AzureAPIM
 
     end_time_clause = ""
     if end_time
-      end_time_clause = " and timestamp le '#{end_time.strftime(fmt)}'"
+      end_time_clause = " and timestamp le datetime'#{end_time.strftime(fmt)}'"
     end
 
     self.request(Net::HTTP::Get, "reports/bySubscription", params: {
