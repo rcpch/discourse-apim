@@ -2,8 +2,6 @@ require 'net/http'
 require_relative '../../services/azure_apim'
 
 class ApimController < ::ApplicationController
-  @@apim_base = 'https://rcpch-apim.management.azure-api.net/subscriptions/99e313f5-79fe-4480-b867-8daf2800cf22/resourceGroups/RCPCH-Dev-API-Growth/providers/Microsoft.ApiManagement/service/rcpch-apim'
-
   def azure_safe_username(email)
     email.gsub(/[^A-Z,a-z]+/, "-")
   end
@@ -18,15 +16,17 @@ class ApimController < ::ApplicationController
     user = current_user
     username = self.azure_safe_username(user.email)
 
+    apim = AzureAPIM.primary_instance
+
     # Everything you could have an API key for
-    products = AzureAPIM.list_products
+    products = apim.list_products
 
     # What you actually have an API key for
     # If you've never signed up you won't have a user in Azure
     subscriptions = []
 
     begin
-      subscriptions = AzureAPIM.list_subscriptions(user: username)
+      subscriptions = apim.list_subscriptions(user: username)
     rescue AzureAPIMError => e
       if e.code != "ResourceNotFound"
         raise e
@@ -58,18 +58,20 @@ class ApimController < ::ApplicationController
     user = current_user
     username = self.azure_safe_username(user.email)
 
+    apim = AzureAPIM.primary_instance
+
     # Required by Azure but we don't need them
     # Fill them in with data that doesn't look bad in their UI
     first_name, last_name = user.email.split("@")
 
-    AzureAPIM.create_or_update_user(
+    apim.create_or_update_user(
       user: username,
       email: user.email,
       first_name: first_name,
       last_name: last_name || first_name
     )
 
-    AzureAPIM.create_subscription_to_product(
+    apim.create_subscription_to_product(
       user: username,
       email: user.email,
       product: params[:product]
@@ -82,7 +84,7 @@ class ApimController < ::ApplicationController
     user = current_user
     username = self.azure_safe_username(user.email)
 
-    ret = AzureAPIM.show_api_keys(
+    ret = AzureAPIM.primary_instance.show_api_keys(
       user: username,
       product: params[:product]
     )
@@ -94,7 +96,7 @@ class ApimController < ::ApplicationController
     start_time = params[:start] ? DateTime.parse(params[:start]) : DateTime.now.beginning_of_month
     end_time = params[:end] ? DateTime.parse(params[:end]) : nil
 
-    ret = AzureAPIM.get_usage(
+    ret = AzureAPIM.primary_instance.get_usage(
       start_time: start_time,
       end_time: end_time
     )

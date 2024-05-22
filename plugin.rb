@@ -37,7 +37,7 @@ after_initialize do
         username: RouteFormat.username,
       }
     
-    get "/apim/usage/:username" => 'apim#usage',
+    get "/apim/usage" => 'apim#usage',
       :constraints => {
         username: RouteFormat.username,
       }
