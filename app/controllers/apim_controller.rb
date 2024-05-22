@@ -1,5 +1,6 @@
 require 'net/http'
 require_relative '../../services/azure_apim'
+require_relative '../../services/usage_reporting'
 
 class ApimController < ::ApplicationController
   def azure_safe_username(email)
@@ -110,10 +111,7 @@ class ApimController < ::ApplicationController
       )
     end
 
-    ret = {
-      "primary": primary,
-      "additional": additional
-    }
+    ret = generate_report([primary, additional].flatten)
 
     render json: ret
   end
