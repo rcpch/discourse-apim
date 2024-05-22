@@ -94,25 +94,27 @@ class ApimController < ::ApplicationController
   end
 
   def usage
-    start_time = params[:start] ? DateTime.parse(params[:start]) : DateTime.now.beginning_of_month
-    end_time = params[:end] ? DateTime.parse(params[:end]) : nil
+    Jobs.enqueue(:fetch_monthly_usage_data)
 
-    primary = AzureAPIM.instance.get_usage(
-      start_time: start_time,
-      end_time: end_time
-    )
+    # start_time = params[:start] ? DateTime.parse(params[:start]) : DateTime.now.beginning_of_month
+    # end_time = params[:end] ? DateTime.parse(params[:end]) : nil
 
-    additional = []
+    # primary = AzureAPIM.instance.get_usage(
+    #   start_time: start_time,
+    #   end_time: end_time
+    # )
 
-    if AzureAPIM.additional_reporting_instance
-      additional = AzureAPIM.additional_reporting_instance.get_usage(
-        start_time: start_time,
-        end_time: end_time
-      )
-    end
+    # additional = []
 
-    ret = generate_report([primary, additional].flatten)
+    # if AzureAPIM.additional_reporting_instance
+    #   additional = AzureAPIM.additional_reporting_instance.get_usage(
+    #     start_time: start_time,
+    #     end_time: end_time
+    #   )
+    # end
 
-    render json: ret
+    # ret = generate_report([primary, additional].flatten)
+
+    # render json: ret
   end
 end

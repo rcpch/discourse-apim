@@ -44,7 +44,7 @@ class AzureAPIM
   def generate_token
     identifier = "integration"
     
-    expiry = (Time.now + (60 * 60)).strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
+    expiry = (Time.now + 1.hour).strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
     string_to_sign = "#{identifier}\n#{expiry}"
     
     digest = OpenSSL::HMAC.digest("SHA512", @management_key, string_to_sign)

@@ -8,6 +8,7 @@ register_svg_icon "server"
 
 after_initialize do
   require_relative "app/controllers/apim_controller.rb"
+  require_relative "app/jobs/fetch_monthly_usage_data.rb"
 
   Discourse::Application.routes.append do
     # Pages
