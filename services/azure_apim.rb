@@ -18,15 +18,27 @@ class AzureAPIM
     @base_url = "https://#{service_name}.management.azure-api.net/subscriptions/#{subscription_id}/resourceGroups/#{resource_group_name}/providers/Microsoft.ApiManagement/service/#{service_name}"
   end
 
-  def self.primary_instance
-    @@primary_instance ||= AzureAPIM.new(
-      service_name: SiteSetting.discourse_apim_azure_service_name,
-      subscription_id: SiteSetting.discourse_apim_azure_subscription_id,
-      resource_group_name: SiteSetting.discourse_apim_azure_resource_group_name,
-      management_key: SiteSetting.discourse_apim_azure_management_key
-    )
+  def self.instance
+    config = {
+      # Use SiteSetting.get to raise an error if the setting isn't set
+      service_name: SiteSetting.get('discourse_apim_azure_service_name'),
+      subscription_id: SiteSetting.get('discourse_apim_azure_subscription_id'),
+      resource_group_name: SiteSetting.get('discourse_apim_azure_resource_group_name'),
+      management_key: SiteSetting.get('discourse_apim_azure_management_key'),
+    }
 
-    @@primary_instance
+    @@instance ||= AzureAPIM.new(**config)
+  end
+
+  def self.additional_reporting_instance
+    config = {
+      subscription_id: SiteSetting.get('discourse_apim_azure_subscription_id'),
+      resource_group_name: SiteSetting.get('discourse_apim_azure_resource_group_name'),
+      service_name: SiteSetting.discourse_apim_azure_additional_reporting_service_name,
+      management_key: SiteSetting.discourse_apim_azure_additional_reporting_management_key
+    }
+
+    @@instance ||= (AzureAPI.new(**config) if config['service_name'] or config['management_key'])
   end
 
   # def self.base_url

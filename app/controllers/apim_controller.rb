@@ -16,7 +16,7 @@ class ApimController < ::ApplicationController
     user = current_user
     username = self.azure_safe_username(user.email)
 
-    apim = AzureAPIM.primary_instance
+    apim = AzureAPIM.instance
 
     # Everything you could have an API key for
     products = apim.list_products
@@ -58,7 +58,7 @@ class ApimController < ::ApplicationController
     user = current_user
     username = self.azure_safe_username(user.email)
 
-    apim = AzureAPIM.primary_instance
+    apim = AzureAPIM.instance
 
     # Required by Azure but we don't need them
     # Fill them in with data that doesn't look bad in their UI
@@ -84,7 +84,7 @@ class ApimController < ::ApplicationController
     user = current_user
     username = self.azure_safe_username(user.email)
 
-    ret = AzureAPIM.primary_instance.show_api_keys(
+    ret = AzureAPIM.instance.show_api_keys(
       user: username,
       product: params[:product]
     )
@@ -96,10 +96,14 @@ class ApimController < ::ApplicationController
     start_time = params[:start] ? DateTime.parse(params[:start]) : DateTime.now.beginning_of_month
     end_time = params[:end] ? DateTime.parse(params[:end]) : nil
 
-    ret = AzureAPIM.primary_instance.get_usage(
+    ret = AzureAPIM.instance.get_usage(
       start_time: start_time,
       end_time: end_time
     )
+
+    puts '!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+    puts "!!!!!!!!!!!!!! #{AzureAPIM.additional_reporting_instance}"
+    puts '!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
     render json: ret
   end

@@ -11,9 +11,11 @@ plugins:
   discourse_apim_azure_management_key:
     type: string
     default: ""
+    secret: true
   discourse_apim_azure_additional_reporting_service_name:
     type: string
     default: ""
   discourse_apim_azure_additional_reporting_management_key:
     type: string
     default: ""
+    secret: true
