@@ -1,11 +1,14 @@
 import Controller from "@ember/controller";
 import { action } from '@ember/object';
 import { ajax } from "discourse/lib/ajax";
+import { withPluginApi } from "discourse/lib/plugin-api";
 
-export default class UserApiKeysController extends Controller {
+export default class UserApimController extends Controller {
   @action
   async createApiKey(product) {
-    await ajax(`${window.location.pathname}/${product}`, {
+    const { username } = this.model.user;
+
+    await ajax(`/apim/credentials/${username}/${product}`, {
       method: 'POST'
     });
 
@@ -16,14 +19,14 @@ export default class UserApiKeysController extends Controller {
 
   @action
   async showApiKey(product) {
-    const { primaryKey } = await ajax(`${window.location.pathname}/${product}/keys`, {
+    const { username } = this.model.user;
+
+    const { primaryKey } = await ajax(`/apim/credentials/${username}/${product}/show`, {
       method: 'POST'
     });
 
-    const row = this.model.find(row => row.product === product);
-    row.apiKey = primaryKey;
-
-    console.log(this.model);
+    const credential = this.model.credentials.find(credential => credential.product === product);
+    credential.apiKey = primaryKey;
   }
 }
 

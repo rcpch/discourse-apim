@@ -7,36 +7,39 @@
 register_svg_icon "server"
 
 after_initialize do
-  require_relative "app/controllers/api_keys_controller.rb"
+  require_relative "app/controllers/apim_controller.rb"
 
   Discourse::Application.routes.append do
+    # Pages
     %w[users u].each do |root_path|
-      get "#{root_path}/:username/api-keys.json" => "apikeys#list",
-        :constraints => {
-          username: RouteFormat.username,
-        }
-
-      get "#{root_path}/:username/api-keys" => "users#show",
-        :constraints => {
-          username: RouteFormat.username,
-        }
-      
-      post "#{root_path}/:username/api-keys/:product" => 'apikeys#create',
-        :constraints => {
-          username: RouteFormat.username,
-        }
-      
-      # This is a POST, following the upstream Azure API
-      # presumably a protection against XSRF 
-      post "#{root_path}/:username/api-keys/:product/keys" => 'apikeys#show',
-        :constraints => {
-          username: RouteFormat.username,
-        }
-      
-      get "#{root_path}/:username/api-keys/usage" => 'apikeys#usage',
+      get "#{root_path}/:username/apim" => "users#show",
         :constraints => {
           username: RouteFormat.username,
         }
     end
+
+    # API
+    #  TODO: isolate this as a Rails engine
+    get "/apim/credentials/:username" => "apim#list",
+    :constraints => {
+      username: RouteFormat.username,
+    }
+  
+    post "/apim/credentials/:username/:product" => 'apim#create',
+      :constraints => {
+        username: RouteFormat.username,
+      }
+    
+    # This is a POST, following the upstream Azure API
+    # presumably a protection against XSRF 
+    post "/apim/credentials/:username/:product/show" => 'apim#show',
+      :constraints => {
+        username: RouteFormat.username,
+      }
+    
+    get "/apim/usage/:username" => 'apim#usage',
+      :constraints => {
+        username: RouteFormat.username,
+      }
   end
 end

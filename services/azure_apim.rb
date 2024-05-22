@@ -35,7 +35,11 @@ class AzureAPIM
     "uid=integration&ex=#{expiry}&sn=#{sn}"
   end
 
-  def self.request(method, endpoint, params = {}, body = nil)
+  def self.request(method, endpoint, params: {}, body: nil)
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts "!!!!!!!!!!! params=#{params} body=#{body}"
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
     params['api-version'] = '2022-08-01'
     param_string = params.map { |v| v.join("=") }.join("&")
 
@@ -91,7 +95,7 @@ class AzureAPIM
       }
     }
 
-    AzureAPIM.request(Net::HTTP::Put, "users/#{user}", JSON.generate(body))
+    AzureAPIM.request(Net::HTTP::Put, "users/#{user}", body: JSON.generate(body))
   end
 
   def self.create_subscription_to_product(user:, product:, email:)
@@ -105,7 +109,7 @@ class AzureAPIM
       }
     }
 
-    AzureAPIM.request(Net::HTTP::Put, "subscriptions/#{sid}", JSON.generate(body))
+    AzureAPIM.request(Net::HTTP::Put, "subscriptions/#{sid}", body: JSON.generate(body))
   end
 
   def self.show_api_keys(user:, product:)
@@ -128,7 +132,7 @@ class AzureAPIM
       end_time_clause = " and timestamp le '#{end_time.strftime(fmt)}'"
     end
 
-    AzureAPIM.request(Net::HTTP::Get, "reports/bySubscription", params = {
+    AzureAPIM.request(Net::HTTP::Get, "reports/bySubscription", params: {
       "$filter": "#{start_time_clause}#{end_time_clause}"
     })
   end

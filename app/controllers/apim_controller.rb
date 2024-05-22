@@ -1,7 +1,7 @@
 require 'net/http'
 require_relative '../../services/azure_apim'
 
-class ApikeysController < ::ApplicationController
+class ApimController < ::ApplicationController
   @@apim_base = 'https://rcpch-apim.management.azure-api.net/subscriptions/99e313f5-79fe-4480-b867-8daf2800cf22/resourceGroups/RCPCH-Dev-API-Growth/providers/Microsoft.ApiManagement/service/rcpch-apim'
 
   def azure_safe_username(email)

@@ -1,0 +1,25 @@
+<div class="user-content" id="user-content">
+  <table>
+    <thead>
+      <tr>
+        <td>Product</td>
+        <td></td>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each model.credentials as |credential|}}
+        <tr>
+          <td>{{credential.displayName}}</td>
+          {{#if credential.apiKey}}
+            <code>{{credential.apiKey}}</code>
+          {{else if credential.enabled}}
+            <button {{action "showApiKey" credential.product}} class="btn">Show API key</button>
+          {{else}}
+            <button {{action "createApiKey" credential.product}} class="btn">Generate API key</button>
+          {{/if}}
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
