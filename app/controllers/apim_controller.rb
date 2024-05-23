@@ -27,7 +27,7 @@ class ApimController < ::ApplicationController
     subscriptions = []
 
     begin
-      subscriptions = apim.list_subscriptions(user: username)
+      subscriptions = apim.list_subscriptions_for_user(user: username)
     rescue AzureAPIMError => e
       if e.code != "ResourceNotFound"
         raise e

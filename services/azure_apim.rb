@@ -102,7 +102,15 @@ class AzureAPIM
     self.request(Net::HTTP::Get, "products")
   end
 
-  def list_subscriptions(user:)
+  def list_subscriptions
+    self.request(Net::HTTP::Get, "subscriptions")
+  end
+
+  def list_users
+    self.request(Net::HTTP::Get, "users")
+  end
+
+  def list_subscriptions_for_user(user:)
     self.request(Net::HTTP::Get, "users/#{user}/subscriptions")
   end
 
