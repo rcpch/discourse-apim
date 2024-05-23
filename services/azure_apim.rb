@@ -149,10 +149,6 @@ class AzureAPIM
   def get_usage(start_time:, end_time:)
     fmt = "%Y-%m-%dT%H:%M:%S"
 
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    puts "!!!!!!!!!!! #{start_time} #{end_time}"
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-
     start_time_clause = "timestamp ge datetime'#{start_time.strftime(fmt)}'"
 
     end_time_clause = ""

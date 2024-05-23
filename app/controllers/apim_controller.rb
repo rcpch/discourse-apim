@@ -97,8 +97,7 @@ class ApimController < ::ApplicationController
     # Jobs.enqueue(:fetch_monthly_usage_data)
     # ret = {}
 
-    keys = Discourse.redis.keys('apim:monthly*')
-    
+    keys = Discourse.redis.keys('apim:monthly*') 
     string_data = Discourse.redis.mget(*keys)
     ret = string_data.map { |data| JSON.parse(data) }
 

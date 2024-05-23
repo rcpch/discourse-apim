@@ -1,4 +1,3 @@
-require 'csv'
 require_relative '../../services/azure_apim'
 require_relative '../../services/usage_reporting'
 
@@ -46,19 +45,10 @@ module Jobs
           json_data = data.to_json
 
           key = UsageReporting.redis_key(data)
-
-          puts '????????????????????????'
-          puts "???????????? #{key} #{json_data}"
-          puts '????????????????????????'
+          
           Discourse.redis.set(key, json_data)
         }
       }
-
-      # # header
-      # puts CSV.generate_line ret[0].keys
-      # ret.each { |row|
-      #   puts CSV.generate_line(row.values)
-      # }
     end
   end
 end

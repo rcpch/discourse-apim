@@ -9,7 +9,12 @@ class UsageReporting
     usage_data_list.each { |usage_data|
       subscription_name = usage_data["subscriptionId"].split("/")[-1]
       
-      metadata_fields = metadata[subscription_name] || {}
+      metadata_fields = metadata[subscription_name] || {
+        :display_name => '',
+        :email => '',
+        :owner_name => ''
+      }
+
       metadata_fields[:subscription] = subscription_name
 
       # https://learn.microsoft.com/en-us/rest/api/apimanagement/reports/list-by-subscription?view=rest-apimanagement-2022-08-01&tabs=HTTP#reportrecordcontract
