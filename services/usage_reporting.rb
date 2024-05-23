@@ -1,10 +1,16 @@
 class UsageReporting
+  def self.redis_key(row)
+    "apim:monthly:#{row[:month]}:#{row[:subscription]}"
+  end
+
   def self.generate_report(usage_data_list, metadata)
     ret = {}
 
     usage_data_list.each { |usage_data|
       subscription_name = usage_data["subscriptionId"].split("/")[-1]
+      
       metadata_fields = metadata[subscription_name] || {}
+      metadata_fields[:subscription] = subscription_name
 
       # https://learn.microsoft.com/en-us/rest/api/apimanagement/reports/list-by-subscription?view=rest-apimanagement-2022-08-01&tabs=HTTP#reportrecordcontract
       fields_to_save = [
@@ -12,9 +18,9 @@ class UsageReporting
         # 2XX, 3XX
         "callCountSuccess",
         # 4XX
-        ":callCountBlocked",
+        "callCountBlocked",
         # 5XX
-        ":callCountFailed",
+        "callCountFailed",
         # ??? (the docs say "Number of other calls" lol)
         "callCountOther",
         # Elapsed time (I think)

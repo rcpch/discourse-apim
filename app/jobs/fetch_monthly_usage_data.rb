@@ -13,18 +13,16 @@ module Jobs
         metadata = metadata.merge(UsageReporting.get_subscription_metadata(AzureAPIM.additional_reporting_instance))
       end
 
-      ret = []
-
       (0..12).map { |n|
         start_time = Time.now.beginning_of_month - n.months
         end_time = n == 0 ? nil : start_time.end_of_month
 
-        key = start_time.strftime("%Y-%m")
+        month = start_time.strftime("%Y-%m")
 
         base_fields = {
-          "key": key,
-          "start_time": start_time,
-          "end_time": end_time
+          :month => month,
+          :start_time => start_time,
+          :end_time => end_time
         }
 
         primary = AzureAPIM.instance.get_usage(
@@ -44,15 +42,23 @@ module Jobs
         report = UsageReporting.generate_report([primary, additional].flatten, metadata)
 
         report.values.each { |row|
-          ret.append(base_fields.merge(row))
+          data = base_fields.merge(row)
+          json_data = data.to_json
+
+          key = UsageReporting.redis_key(data)
+
+          puts '????????????????????????'
+          puts "???????????? #{key} #{json_data}"
+          puts '????????????????????????'
+          Discourse.redis.set(key, json_data)
         }
       }
 
-      # header
-      puts CSV.generate_line ret[0].keys
-      ret.each { |row|
-        puts CSV.generate_line(row.values)
-      }
+      # # header
+      # puts CSV.generate_line ret[0].keys
+      # ret.each { |row|
+      #   puts CSV.generate_line(row.values)
+      # }
     end
   end
 end

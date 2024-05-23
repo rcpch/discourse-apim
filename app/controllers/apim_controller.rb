@@ -94,7 +94,13 @@ class ApimController < ::ApplicationController
   end
 
   def usage
-    Jobs.enqueue(:fetch_monthly_usage_data)
+    # Jobs.enqueue(:fetch_monthly_usage_data)
+    # ret = {}
+
+    keys = Discourse.redis.keys('apim:monthly*')
+    
+    string_data = Discourse.redis.mget(*keys)
+    ret = string_data.map { |data| JSON.parse(data) }
 
     # start_time = params[:start] ? DateTime.parse(params[:start]) : DateTime.now.beginning_of_month
     # end_time = params[:end] ? DateTime.parse(params[:end]) : nil
@@ -115,6 +121,6 @@ class ApimController < ::ApplicationController
 
     # ret = generate_report([primary, additional].flatten)
 
-    # render json: ret
+    render json: ret
   end
 end
