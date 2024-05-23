@@ -91,6 +91,10 @@ class AzureAPIM
     puts "!!!!!!!!!!! #{json}"
     puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
+    if json['nextLink']
+      raise AzureAPIMError.new "DEVELOPER ERROR: need to handle nextLink for #{endpoint}"
+    end
+
     if json['error']
       raise AzureAPIMError.new json['error']['message'] || 'Unknown AzureAPIM error', json['error']['code']
     else
@@ -103,11 +107,15 @@ class AzureAPIM
   end
 
   def list_subscriptions
-    self.request(Net::HTTP::Get, "subscriptions")
+    self.request(Net::HTTP::Get, "subscriptions", params: {
+      '$top': 1000
+    })
   end
 
   def list_users
-    self.request(Net::HTTP::Get, "users")
+    self.request(Net::HTTP::Get, "users", params: {
+      '$top': 1000
+    })
   end
 
   def list_subscriptions_for_user(user:)

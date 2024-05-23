@@ -9,7 +9,9 @@ module Jobs
       metadata = UsageReporting.get_subscription_metadata(AzureAPIM.instance)
 
       if AzureAPIM.additional_reporting_instance
-        metadata = metadata.merge(UsageReporting.get_subscription_metadata(AzureAPIM.additional_reporting_instance))
+        additional_metadata = UsageReporting.get_subscription_metadata(AzureAPIM.additional_reporting_instance)
+
+        metadata = metadata.merge(additional_metadata)
       end
 
       (0..12).map { |n|
@@ -45,7 +47,7 @@ module Jobs
           json_data = data.to_json
 
           key = UsageReporting.redis_key(data)
-          
+
           Discourse.redis.set(key, json_data)
         }
       }
