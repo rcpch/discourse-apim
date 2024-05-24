@@ -8,6 +8,7 @@ register_svg_icon "server"
 
 after_initialize do
   require_relative "app/controllers/apim_controller.rb"
+  require_relative "app/controllers/apim_usage_controller.rb"
   require_relative "app/jobs/fetch_monthly_usage_data.rb"
 
   Discourse::Application.routes.append do
@@ -19,7 +20,7 @@ after_initialize do
         }
     end
 
-    # API
+    # User API
     #  TODO: isolate this as a Rails engine
     get "/apim/credentials/:username" => "apim#list",
     :constraints => {
@@ -38,9 +39,9 @@ after_initialize do
         username: RouteFormat.username,
       }
     
-    get "/apim/usage" => 'apim#usage',
-      :constraints => {
-        username: RouteFormat.username,
-      }
+    # Admin API
+    get "/apim/usage/report" => 'apim_usage#report'
+    
+    post "/apim/usage/refresh" => 'apim_usage#refresh'
   end
 end
