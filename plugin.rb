@@ -11,6 +11,8 @@ after_initialize do
   require_relative "app/controllers/apim_usage_controller.rb"
   require_relative "app/jobs/fetch_monthly_usage_data.rb"
 
+  add_admin_route "admin.apim", "apim"
+
   Discourse::Application.routes.append do
     # Pages
     %w[users u].each do |root_path|
@@ -19,6 +21,9 @@ after_initialize do
           username: RouteFormat.username,
         }
     end
+
+    get "/admin/plugins/apim" => "admin/plugins#index",
+      :constraints => StaffConstraint.new
 
     # User API
     #  TODO: isolate this as a Rails engine
