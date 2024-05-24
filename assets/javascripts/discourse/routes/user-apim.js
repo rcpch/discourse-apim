@@ -7,10 +7,11 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 class ApimCredential {
   @tracked apiKey;
 
-  constructor(product, displayName, enabled) {
+  constructor(product, displayName, enabled, usage) {
     this.product = product;
     this.displayName = displayName;
     this.enabled = enabled;
+    this.usage = usage;
   }
 }
 
@@ -21,8 +22,8 @@ export default class UserApimRoute extends Route {
 
     const { api_keys } = await ajax(`/apim/credentials/${username}`);
 
-    const credentials = api_keys.map(({ product, displayName, enabled }) =>
-      new ApimCredential(product, displayName, enabled)
+    const credentials = api_keys.map(({ product, displayName, enabled, usage }) =>
+      new ApimCredential(product, displayName, enabled, usage)
     );
 
     return {

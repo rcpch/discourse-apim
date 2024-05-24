@@ -4,6 +4,8 @@
 # authors: Michael Barton, RCPCH
 # url: https://github.com/rcpch/discourse-apim
 
+register_asset "stylesheets/user-apim.scss"
+
 register_svg_icon "server"
 
 after_initialize do

@@ -1,27 +1,26 @@
-<div class="user-content" id="user-content">
-  <table class="grid">
-    <thead>
-      <tr>
-        <td>Product</td>
-        <td>Quota</td>
-        <td></td>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each model.credentials as |credential|}}
-        <tr>
-          <td>{{credential.displayName}}</td>
-          <td>-</td>
-          {{#if credential.apiKey}}
-            <code>{{credential.apiKey}}</code>
-          {{else if credential.enabled}}
-            <button {{action "showApiKey" credential.product}} class="btn">Show API key</button>
-          {{else}}
-            <button {{action "createApiKey" credential.product}} class="btn">Generate API key</button>
-          {{/if}}
-        </tr>
-      {{/each}}
-    </tbody>
-  </table>
+<div class="user-content apim" id="user-content">
+  {{#each model.credentials as |credential|}}
+    <div class="apim-credential">
+      <div class="credential-header">
+        <div class="credential-title">
+          {{credential.displayName}}
+        </div>
+      </div>
+      <div class="credential-action">
+        {{#if credential.apiKey}}
+          <code>{{credential.apiKey}}</code>
+        {{else if credential.enabled}}
+          <button {{action "showApiKey" credential.product}} class="btn">Show API key</button>
+        {{else}}
+          <button {{action "createApiKey" credential.product}} class="btn">Generate API key</button>
+        {{/if}}
+      </div>
+      {{#if credential.usage.length }}
+        <div class="credential-usage">
+          Usage data coming soon!
+        </div>
+      {{/if}}
+    </div>
+  {{/each}}
 </div>
 

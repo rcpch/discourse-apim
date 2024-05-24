@@ -1,0 +1,23 @@
+.apim-credential {
+  background-color: var(--primary-very-low);
+  border: 1px solid var(--primary-low);
+  padding: 1em;
+}
+
+.credential-header {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--primary-low);
+  padding-bottom: 1em;
+}
+
+.credential-title {
+  font-weight: 700;
+  padding: 0;
+  margin: 0;
+  font-size: var(--font-up-1);
+}
+
+.credential-action {
+  padding: 1em;
+}
