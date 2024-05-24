@@ -1,7 +1,6 @@
 import Controller from "@ember/controller";
 import { action } from '@ember/object';
 import { ajax } from "discourse/lib/ajax";
-import { withPluginApi } from "discourse/lib/plugin-api";
 
 export default class UserApimController extends Controller {
   @action
