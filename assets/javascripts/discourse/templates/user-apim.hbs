@@ -1,8 +1,9 @@
 <div class="user-content" id="user-content">
-  <table>
+  <table class="grid">
     <thead>
       <tr>
         <td>Product</td>
+        <td>Quota</td>
         <td></td>
       </tr>
     </thead>
@@ -10,6 +11,7 @@
       {{#each model.credentials as |credential|}}
         <tr>
           <td>{{credential.displayName}}</td>
+          <td>-</td>
           {{#if credential.apiKey}}
             <code>{{credential.apiKey}}</code>
           {{else if credential.enabled}}

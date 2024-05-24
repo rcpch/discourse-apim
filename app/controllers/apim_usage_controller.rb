@@ -1,9 +1,8 @@
+require_relative '../../services/apim_usage_db'
+
 class ApimUsageController < Admin::AdminController
   def report
-    keys = Discourse.redis.keys('apim:monthly*') 
-    string_data = Discourse.redis.mget(*keys)
-
-    monthly_report_objects = string_data.map { |data| JSON.parse(data) }
+    monthly_report_objects = APIMUsageDB.get_all_monthly_usage_rows
 
     if request.format == 'text/csv'
       ret = UsageReporting.generate_report_csv(monthly_report_objects)

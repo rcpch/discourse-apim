@@ -1,5 +1,6 @@
 require_relative '../../services/azure_apim'
 require_relative '../../services/usage_reporting'
+require_relative '../../services/apim_usage_db'
 
 module Jobs
   class FetchMonthlyUsageData < ::Jobs::Scheduled
@@ -45,11 +46,8 @@ module Jobs
 
         report.values.each { |row|
           data = base_fields.merge(row)
-          json_data = data.to_json
-
-          key = UsageReporting.redis_key(data)
-
-          Discourse.redis.set(key, json_data)
+          
+          APIMUsageDB.save_monthly_usage_row(data)
         }
       }
     end
