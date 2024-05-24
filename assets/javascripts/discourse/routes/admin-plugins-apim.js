@@ -3,7 +3,7 @@ import { ajax } from "discourse/lib/ajax";
 
 export default class AdminPluginsApimRoute extends Route {
   async model() {
-    const resp = await ajax(`/apim/usage/report`);
+    const resp = await ajax(`/apim/usage/report.csv`);
 
     console.log({ resp });
 

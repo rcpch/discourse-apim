@@ -40,7 +40,7 @@ module Jobs
           )
         end
 
-        report = UsageReporting.generate_report([primary, additional].flatten, metadata)
+        report = UsageReporting.generate_report_object([primary, additional].flatten, metadata)
 
         report.values.each { |row|
           data = base_fields.merge(row)

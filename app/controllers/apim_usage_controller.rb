@@ -3,8 +3,14 @@ class ApimUsageController < Admin::AdminController
     keys = Discourse.redis.keys('apim:monthly*') 
     string_data = Discourse.redis.mget(*keys)
 
-    ret = string_data.map { |data| JSON.parse(data) }
-    render json: ret
+    monthly_report_objects = string_data.map { |data| JSON.parse(data) }
+
+    if request.format == 'text/csv'
+      ret = UsageReporting.generate_report_csv(monthly_report_objects)
+      render inline: ret, content_type: 'text/csv'
+    else
+      render json: monthly_report_objects
+    end
   end
 
   def refresh

@@ -1,9 +1,11 @@
+require 'csv'
+
 class UsageReporting
   def self.redis_key(row)
     "apim:monthly:#{row[:month]}:#{row[:subscription]}"
   end
 
-  def self.generate_report(usage_data_list, metadata)
+  def self.generate_report_object(usage_data_list, metadata)
     ret = {}
 
     usage_data_list.each { |usage_data|
@@ -46,6 +48,21 @@ class UsageReporting
     }
     
     ret
+  end
+
+  def self.generate_report_csv(monthly_report_objects)
+    headers = monthly_report_objects[0].keys
+
+    ret = [
+      CSV.generate_line(headers)
+    ]
+
+    monthly_report_objects[1..].each { |report_object|
+      ret.append(CSV.generate_line(report_object.values))
+    }
+
+    # generate_line does the newlines for us
+    ret.join('')
   end
 
   def self.get_subscription_metadata(apim)
