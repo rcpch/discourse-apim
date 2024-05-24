@@ -17,7 +17,17 @@
       </div>
       {{#if credential.usage.length }}
         <div class="credential-usage">
-          Usage data coming soon!
+          <div class="credential-usage-this-month credential-stat">
+            <div class="credential-stat-number">
+              {{credential.callsThisMonth}}
+            </div>
+            <div class="credential-stat-description">
+              calls this month
+            </div>
+          </div>
+          <div class="credential-usage-last-year">
+            usage last year
+          </div>
         </div>
       {{/if}}
     </div>

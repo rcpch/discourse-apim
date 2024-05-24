@@ -20,4 +20,31 @@
 
 .credential-action {
   padding: 1em;
+  border-bottom: 1px solid var(--primary-low);
+}
+
+.credential-usage {
+  display: flex;
+  padding: 1em 0em;
+}
+
+.credential-usage-this-month {
+  flex: 1;
+}
+
+.credential-usage-last-year {
+  flex: 4;
+}
+
+.credential-stat {
+  text-align: center;
+}
+
+.credential-stat-number {
+  font-weight: bold;
+  font-size: var(--font-up-3);
+}
+
+.credential-stat-description {
+  color: var(--primary-medium);
 }

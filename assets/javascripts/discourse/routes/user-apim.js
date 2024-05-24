@@ -13,6 +13,13 @@ class ApimCredential {
     this.enabled = enabled;
     this.usage = usage;
   }
+
+  callsThisMonth = () => {
+    const key = moment().format('YYYY-MM');
+    const usageThisMonth = (this.usage ?? []).find(({ month }) => month == key);
+
+    return usageThisMonth?.count ?? 0;
+  }
 }
 
 export default class UserApimRoute extends Route {
