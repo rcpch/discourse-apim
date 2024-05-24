@@ -7,7 +7,7 @@ class ApimUsageController < Admin::AdminController
 
     if request.format == 'text/csv'
       ret = UsageReporting.generate_report_csv(monthly_report_objects)
-      render inline: ret, content_type: 'text/csv'
+      render body: ret, content_type: 'text/csv'
     else
       render json: monthly_report_objects
     end

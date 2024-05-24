@@ -2,7 +2,8 @@ require_relative '../../services/azure_apim'
 require_relative '../../services/usage_reporting'
 
 module Jobs
-  class FetchMonthlyUsageData < ::Jobs::Base
+  class FetchMonthlyUsageData < ::Jobs::Scheduled
+    every 1.hour
     sidekiq_options queue: "low"
 
     def execute(args)
