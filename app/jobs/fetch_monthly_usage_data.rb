@@ -8,6 +8,8 @@ module Jobs
     sidekiq_options queue: "low"
 
     def execute(args)
+      return unless SiteSetting.discourse_apim_reporting_enabled
+
       metadata = UsageReporting.get_subscription_metadata(AzureAPIM.instance)
 
       if AzureAPIM.additional_reporting_instance
