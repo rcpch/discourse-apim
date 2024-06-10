@@ -24,6 +24,19 @@ after_initialize do
         }
     end
 
+    %w[groups g].each do |root_path|
+      resources :groups,
+                only: %i[index show new edit update],
+                id: RouteFormat.username,
+                path: root_path do
+        member do
+          %w[
+            apim
+          ].each { |path| get path => "groups#show" }
+        end
+      end
+    end
+
     get "/admin/plugins/apim" => "admin/plugins#index",
       :constraints => StaffConstraint.new
 
