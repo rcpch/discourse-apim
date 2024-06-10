@@ -14,6 +14,18 @@ class ApimController < ::ApplicationController
     }
   end
 
+  def usage_for_subscription(subscription)
+    subscription_name = subscription["id"].split('/')[-1]
+    usage = APIMUsageDB.get_all_monthly_usage_rows(subscription: subscription_name)
+
+    usage.map { |row|
+      {
+        :month => row["month"],
+        :count => row["callCountSuccess"]
+      }
+    }
+  end
+
   def list
     user = current_user
     username = self.azure_safe_username(user.email)
@@ -41,22 +53,13 @@ class ApimController < ::ApplicationController
 
     products_for_user = published_products.map { |product|
       subscription = subscription_for_product(product, subscriptions)
-
-      subscription_name = subscription["id"].split('/')[-1]
-      usage = APIMUsageDB.get_all_monthly_usage_rows(subscription: subscription_name)
-
-      user_facing_usage = usage.map { |row|
-        {
-          :month => row["month"],
-          :count => row["callCountSuccess"]
-        }
-      }
+      usage = usage_for_subscription(subscription) if subscription
 
       {
         "product" => product["name"],
         "displayName" => product["properties"]["displayName"] || product["name"],
         "enabled" => subscription != nil,
-        "usage" => user_facing_usage
+        "usage" => usage
       }
     } 
     
