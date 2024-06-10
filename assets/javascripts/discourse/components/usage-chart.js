@@ -36,7 +36,7 @@ export default class UsageChart extends Component {
       }
 
       this._renderChart(
-        this.model,
+        this.data,
         this.element.querySelector(".chart-canvas")
       );
     });
@@ -47,16 +47,27 @@ export default class UsageChart extends Component {
       return;
     }
 
+    const sorted = model
+      .sortBy('month')
+      .reverse()
+      .slice(0, 12);
+    
+    const labels = sorted.map(({ month }) => month);
+    const data = sorted.map(({ count }) => count);
+
+    const backgroundColor = getComputedStyle(document.body).getPropertyValue('--tertiary') ?? '#ffffff';
+
     const context = chartCanvas.getContext("2d");
 
     const chartConfig = {
       type: 'bar',
       data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels,
         datasets: [{
-          label: '# of Votes',
-          data: [12, 19, 3, 5, 2, 3],
-          borderWidth: 1
+          data,
+          label: 'Succesful API calls',
+          fill: true,
+          backgroundColor
         }]
       },
       options: {
