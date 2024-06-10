@@ -56,18 +56,10 @@ class AzureAPIM
   end
 
   def request(method, endpoint, params: {}, body: nil)
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    puts "!!!!!!!!!!! params=#{params} body=#{body}"
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-
     params['api-version'] = '2022-08-01'
     param_string = params.map { |v| v.join("=") }.join("&")
 
     url = UrlHelper.encode_and_parse("#{@base_url}/#{endpoint}?#{param_string}")
-
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    puts "!!!!!!!!!!! #{url} #{param_string}"
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
     request = method.new(url)
     request['Authorization'] = "SharedAccessSignature #{self.generate_token}"
@@ -75,10 +67,6 @@ class AzureAPIM
     if body
       request['Content-Type'] = "application/json"
       request.body = body
-
-      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-      puts "!!!!!!!!!!! #{body}"
-      puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     end
 
     response = Net::HTTP.start(url.host, url.port, :use_ssl => true) do |http|
@@ -86,10 +74,6 @@ class AzureAPIM
     end
 
     json = JSON.parse(response.body)
-
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    puts "!!!!!!!!!!! #{json}"
-    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
     if json['nextLink']
       raise AzureAPIMError.new "DEVELOPER ERROR: need to handle nextLink for #{endpoint}"
