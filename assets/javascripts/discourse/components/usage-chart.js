@@ -49,8 +49,34 @@ export default class UsageChart extends Component {
 
     const context = chartCanvas.getContext("2d");
 
+    const chartConfig = {
+      type: 'bar',
+      data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+          label: '# of Votes',
+          data: [12, 19, 3, 5, 2, 3],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    };
+
     loadScript("/javascripts/Chart.min.js").then(() => {
-      console.log('buna!', { context })
+      this._resetChart();
+
+      this._chart = new window.Chart(context, chartConfig);
     });
+  }
+
+  _resetChart() {
+    this._chart?.destroy();
+    this._chart = null;
   }
 }
