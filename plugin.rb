@@ -64,4 +64,7 @@ after_initialize do
     
     post "/apim/usage/refresh" => 'apim_usage#refresh'
   end
+
+  register_user_custom_field_type('apim', :json)
+  register_group_custom_field_type('apim', :json)
 end

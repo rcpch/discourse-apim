@@ -4,8 +4,19 @@ require_relative '../../services/usage_reporting'
 require_relative '../../services/apim_usage_db'
 
 class ApimController < ::ApplicationController
-  def azure_safe_username(email)
-    email.gsub(/[^A-Z,a-z]+/, "-")
+  def azure_username(user)
+    apim_fields = user.custom_fields['apim'] ||= {}
+    username = apim_fields[:username]
+    
+    if !username
+      username = user.email.gsub(/[^A-Z,a-z]+/, "-")
+      apim_fields[:username] = username
+
+      user.custom_fields['apim'] = apim_fields
+      user.save_custom_fields
+    end
+
+    username
   end
 
   def subscription_for_product(product, subscriptions)
@@ -28,7 +39,7 @@ class ApimController < ::ApplicationController
 
   def list
     user = current_user
-    username = self.azure_safe_username(user.email)
+    username = self.azure_username(user)
 
     apim = AzureAPIM.instance
 
@@ -72,7 +83,7 @@ class ApimController < ::ApplicationController
 
   def create
     user = current_user
-    username = self.azure_safe_username(user.email)
+    username = self.azure_username(user)
 
     apim = AzureAPIM.instance
 
@@ -98,7 +109,7 @@ class ApimController < ::ApplicationController
 
   def show
     user = current_user
-    username = self.azure_safe_username(user.email)
+    username = self.azure_username(user)
 
     ret = AzureAPIM.instance.show_api_keys(
       user: username,
