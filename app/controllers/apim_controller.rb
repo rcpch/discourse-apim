@@ -111,7 +111,7 @@ class ApimController < ::ApplicationController
 
   def list_for_user
     list(azure_username_for_current_user) { |product|
-      product["properties"]["state"] == "published"
+      product["properties"]["approvalRequired"] == false
     }
   end
 
@@ -121,9 +121,7 @@ class ApimController < ::ApplicationController
     username = azure_username_for_group(group)
 
     list(username) { |product, subscription|
-      guardian.is_admin? || (
-        product["properties"]["state"] == "notPublished" &&
-          subscription != nil)
+      guardian.is_admin? || subscription != nil
     }
   end
 

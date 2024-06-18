@@ -37,8 +37,8 @@ Each row in the plugin UI is a combination of three Azure APIM concepts:
   - For Discourse groups (ie paying customers) we create a single user representing the group
 - [Product](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-add-products?tabs=azure-portal)
   - One to one mapping with an API
-  - Free products are published and must have quota or rate limiting
-  - Paid for products are unpublished
+  - Free products do not require approval and must have quota or rate limiting
+  - Paid for products require approval and are only shown to users within a customer group in Discourse
 - [Subscription](https://learn.microsoft.com/en-us/azure/api-management/api-management-subscriptions)
   - Essentially the API key, the mechanism for a user to consume a product
   - Each user (including customer group ones) should have only one subscription per product
@@ -54,8 +54,8 @@ The discourse plugion talks to the API management API directly:
 To generate the list of APIs we combine the following API calls:
 
 - [Product - List By Service](https://learn.microsoft.com/en-us/rest/api/apimanagement/product/list-by-service?view=rest-apimanagement-2022-08-01&tabs=HTTP).
-  - For individual users we filter by published products so they can only sign up to our free products.
-  - For a paid customer group we show all our unpublished products along with a link to get in touch to sign up to more.
+  - For individual users we filter by products that do not require approval so they can only sign up to our free products.
+  - For a paid customer group we show the products they have been signed up for
   - For administrators viewing either we show all products regardless, allowing them to match as they see fit
 - [User Subscription - List](https://learn.microsoft.com/en-us/rest/api/apimanagement/user-subscription/list?view=rest-apimanagement-2022-08-01&tabs=HTTP)
   - Contains a `scope` field against each subscription which we match against the products to show which ones they already have credentials for
