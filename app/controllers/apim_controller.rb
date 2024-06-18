@@ -19,9 +19,30 @@ class ApimController < ::ApplicationController
     username
   end
 
+  def subscriptions_for_user(user)
+    username = self.azure_username(user)
+
+    begin
+      AzureAPIM.instance.list_subscriptions_for_user(user: username)
+    rescue AzureAPIMError => e
+      # If you've never signed up you won't have a user in Azure
+      if e.code != "ResourceNotFound"
+        raise e
+      end
+
+      []
+    end
+  end
+
   def subscription_for_product(product, subscriptions)
     subscriptions.find { |subscription|
       subscription["properties"]["scope"] == product["id"]
+    }
+  end
+
+  def subscription_for_product_name(product_name, subscriptions)
+    subscriptions.find { |subscription|
+      subscription["properties"]["scope"].end_with?("/#{product_name}")
     }
   end
 
@@ -41,22 +62,11 @@ class ApimController < ::ApplicationController
     user = current_user
     username = self.azure_username(user)
 
-    apim = AzureAPIM.instance
+    # Everything you could have credentials for
+    products = AzureAPIM.instance.list_products
 
-    # Everything you could have an API key for
-    products = apim.list_products
-
-    # What you actually have an API key for
-    # If you've never signed up you won't have a user in Azure
-    subscriptions = []
-
-    begin
-      subscriptions = apim.list_subscriptions_for_user(user: username)
-    rescue AzureAPIMError => e
-      if e.code != "ResourceNotFound"
-        raise e
-      end
-    end
+    # What you actually have credentials for
+    subscriptions = self.subscriptions_for_user(user)
 
     published_products = products.select { |product|
       product["properties"]["state"] == "published"
@@ -109,11 +119,14 @@ class ApimController < ::ApplicationController
 
   def show
     user = current_user
-    username = self.azure_username(user)
+    
+    subscriptions = self.subscriptions_for_user(user)
+    subscription = self.subscription_for_product_name(params[:product], subscriptions)
+
+    return head 404 unless subscription
 
     ret = AzureAPIM.instance.show_api_keys(
-      user: username,
-      product: params[:product]
+      sid: subscription['name']
     )
 
     render json: ret

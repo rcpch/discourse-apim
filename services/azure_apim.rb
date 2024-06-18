@@ -132,9 +132,7 @@ class AzureAPIM
     self.request(Net::HTTP::Put, "subscriptions/#{sid}", body: JSON.generate(body))
   end
 
-  def show_api_keys(user:, product:)
-    sid = "#{product}-#{user}"
-
+  def show_api_keys(sid:)
     self.request(Net::HTTP::Post, "subscriptions/#{sid}/listSecrets")
   end
 
