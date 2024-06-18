@@ -4,24 +4,38 @@ require_relative '../../services/usage_reporting'
 require_relative '../../services/apim_usage_db'
 
 class ApimController < ::ApplicationController
-  def azure_username(user)
-    apim_fields = user.custom_fields['apim'] ||= {}
+  def find_group(param_name, ensure_can_see: true)
+    name = params.require(param_name)
+    group = Group.find_by("LOWER(name) = ?", name.downcase)
+    raise Discourse::NotFound if ensure_can_see && !guardian.can_see_group?(group)
+    group
+  end
+
+  def azure_username(object, default:)
+    apim_fields = object.custom_fields['apim'] ||= {}
     username = apim_fields[:username]
     
     if !username
-      username = user.email.gsub(/[^A-Z,a-z]+/, "-")
+      username = default.gsub(/[^A-Z,a-z]+/, "-")
       apim_fields[:username] = username
 
-      user.custom_fields['apim'] = apim_fields
-      user.save_custom_fields
+      object.custom_fields['apim'] = apim_fields
+      object.save_custom_fields
     end
 
     username
   end
 
-  def subscriptions_for_user(user)
-    username = self.azure_username(user)
+  def azure_username_for_current_user()
+    self.azure_username(current_user, default: current_user.email)
+  end
 
+  def azure_username_for_group()
+    group = find_group(:id)
+    self.azure_username(group, default: group.name)
+  end
+
+  def subscriptions_for_azure_user(username)
     begin
       AzureAPIM.instance.list_subscriptions_for_user(user: username)
     rescue AzureAPIMError => e
@@ -58,21 +72,21 @@ class ApimController < ::ApplicationController
     }
   end
 
-  def list_for_user
-    user = current_user
-    username = self.azure_username(user)
-
+  def list(azure_username:, product_state:)
     # Everything you could have credentials for
     products = AzureAPIM.instance.list_products
 
     # What you actually have credentials for
-    subscriptions = self.subscriptions_for_user(user)
+    subscriptions = self.subscriptions_for_azure_user(azure_username)
 
     published_products = products.select { |product|
-      product["properties"]["state"] == "published"
+      product["properties"]["state"] == product_state &&
+        # hide weird azure defaults
+        (!["starter", "unlimited"].include?(product["name"]))
     }
 
-    products_for_user = published_products.map { |product|
+    # TODO MRB: show everything to admins, only show enabled ones to normal group members
+    product_data = published_products.map { |product|
       subscription = subscription_for_product(product, subscriptions)
       usage = usage_for_subscription(subscription) if subscription
 
@@ -83,20 +97,26 @@ class ApimController < ::ApplicationController
         "usage" => usage
       }
     } 
-    
+
     ret = {
-      "api_keys": products_for_user
+      "api_keys": product_data
     }
 
     render json: ret
   end
 
-  def list_for_group
-    ret = {
-      "api_keys": []
-    }
+  def list_for_user
+    self.list(
+      azure_username: self.azure_username_for_current_user,
+      product_state: "published"
+    )
+  end
 
-    render json: ret
+  def list_for_group
+    self.list(
+      azure_username: self.azure_username_for_group,
+      product_state: "notPublished"
+    )
   end
 
   def create_for_user
@@ -126,9 +146,7 @@ class ApimController < ::ApplicationController
   end
 
   def show_for_user
-    user = current_user
-    
-    subscriptions = self.subscriptions_for_user(user)
+    subscriptions = self.subscriptions_for_azure_user(self.azure_username_for_current_user)
     subscription = self.subscription_for_product_name(params[:product], subscriptions)
 
     return head 404 unless subscription
