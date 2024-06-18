@@ -53,6 +53,8 @@ after_initialize do
       :constraints => {
         username: RouteFormat.username,
       }
+
+    post "/apim/credentials/group/:id/:product" => 'apim#create_for_group'
     
     # This is a POST, following the upstream Azure API
     # presumably a protection against XSRF 

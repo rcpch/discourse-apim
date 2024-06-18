@@ -30,8 +30,7 @@ class ApimController < ::ApplicationController
     self.azure_username(current_user, default: current_user.email)
   end
 
-  def azure_username_for_group()
-    group = find_group(:id)
+  def azure_username_for_group(group)
     self.azure_username(group, default: group.name)
   end
 
@@ -117,7 +116,11 @@ class ApimController < ::ApplicationController
   end
 
   def list_for_group
-    self.list(self.azure_username_for_group) { |product, subscription|
+    # checks we are a member or can admin this group
+    group = find_group(:id)
+    username = self.azure_username_for_group(group)
+
+    self.list(username) { |product, subscription|
       guardian.is_admin? || (
         product["properties"]["state"] == "notPublished" &&
           subscription != nil)
@@ -144,6 +147,37 @@ class ApimController < ::ApplicationController
     apim.create_subscription_to_product(
       user: username,
       email: user.email,
+      product: params[:product]
+    )
+
+    head 201
+  end
+
+  def create_for_group
+    # only admins can create on behalf of paying customers
+    return head 403 unless guardian.is_admin?
+
+    group = find_group(:id)
+    username = self.azure_username_for_group(group)
+
+    # Required by Azure but we don't need them
+    # Fill them in with data that doesn't look bad in their UI
+    first_name = group.name
+    last_name = "discourse group"
+    email = "#{username}@discourse-group-placeholders.rcpch.ac.uk"
+
+    apim = AzureAPIM.instance
+
+    apim.create_or_update_user(
+      user: username,
+      email: email,
+      first_name: first_name,
+      last_name: last_name
+    )
+
+    apim.create_subscription_to_product(
+      user: username,
+      email: email,
       product: params[:product]
     )
 

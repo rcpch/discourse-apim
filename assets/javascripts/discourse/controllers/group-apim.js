@@ -5,16 +5,13 @@ import { ajax } from "discourse/lib/ajax";
 export default class UserApimController extends Controller {
   @action
   async createApiKey(product) {
-    console.log('group.createApiKey', { product });
-    // const { username } = this.model.user;
+    await ajax(`/apim/credentials/group/${this.model.name}/${product}`, {
+      method: 'POST'
+    });
 
-    // await ajax(`/apim/credentials/user/${username}/${product}`, {
-    //   method: 'POST'
-    // });
-
-    // // apparently I have to send an action here rather than just getting the router and calling refresh
-    // // aren't javascript frameworks wonderful they really make life easy
-    // this.send("refreshModel");
+    // apparently I have to send an action here rather than just getting the router and calling refresh
+    // aren't javascript frameworks wonderful they really make life easy
+    this.send("refreshModel");
   }
 
   @action
