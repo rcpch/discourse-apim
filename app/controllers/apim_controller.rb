@@ -72,31 +72,36 @@ class ApimController < ::ApplicationController
     }
   end
 
-  def list(azure_username:, product_state:)
+  def build_product_data(product, subscription)
+    usage = usage_for_subscription(subscription) if subscription
+
+    {
+      "product" => product["name"],
+      "displayName" => product["properties"]["displayName"] || product["name"],
+      "enabled" => subscription != nil,
+      "usage" => usage
+    }
+  end
+
+  def is_weird_azure_default_product(product)
+    ["starter", "unlimited"].include?(product["name"])
+  end
+
+  def list(azure_username, &include_product)
     # Everything you could have credentials for
     products = AzureAPIM.instance.list_products
+      .select { |product| !is_weird_azure_default_product(product) }
 
     # What you actually have credentials for
     subscriptions = self.subscriptions_for_azure_user(azure_username)
 
-    published_products = products.select { |product|
-      product["properties"]["state"] == product_state &&
-        # hide weird azure defaults
-        (!["starter", "unlimited"].include?(product["name"]))
+    subscriptions_by_product = products.map { |product|
+      [product, subscription_for_product(product, subscriptions)]
     }
 
-    # TODO MRB: show everything to admins, only show enabled ones to normal group members
-    product_data = published_products.map { |product|
-      subscription = subscription_for_product(product, subscriptions)
-      usage = usage_for_subscription(subscription) if subscription
-
-      {
-        "product" => product["name"],
-        "displayName" => product["properties"]["displayName"] || product["name"],
-        "enabled" => subscription != nil,
-        "usage" => usage
-      }
-    } 
+    product_data = subscriptions_by_product.filter_map { |product, subscription|
+      build_product_data(product, subscription) if include_product.call(product, subscription)
+    }
 
     ret = {
       "api_keys": product_data
@@ -106,17 +111,17 @@ class ApimController < ::ApplicationController
   end
 
   def list_for_user
-    self.list(
-      azure_username: self.azure_username_for_current_user,
-      product_state: "published"
-    )
+    self.list(self.azure_username_for_current_user) { |product|
+      product["properties"]["state"] == "published"
+    }
   end
 
   def list_for_group
-    self.list(
-      azure_username: self.azure_username_for_group,
-      product_state: "notPublished"
-    )
+    self.list(self.azure_username_for_group) { |product, subscription|
+      guardian.is_admin? || (
+        product["properties"]["state"] == "notPublished" &&
+          subscription != nil)
+    }
   end
 
   def create_for_user
