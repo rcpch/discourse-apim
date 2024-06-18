@@ -7,7 +7,7 @@ export default class UserApimController extends Controller {
   async createApiKey(product) {
     const { username } = this.model.user;
 
-    await ajax(`/apim/credentials/${username}/${product}`, {
+    await ajax(`/apim/credentials/user/${username}/${product}`, {
       method: 'POST'
     });
 
@@ -20,7 +20,7 @@ export default class UserApimController extends Controller {
   async showApiKey(product) {
     const { username } = this.model.user;
 
-    const { primaryKey } = await ajax(`/apim/credentials/${username}/${product}/show`, {
+    const { primaryKey } = await ajax(`/apim/credentials/user/${username}/${product}/show`, {
       method: 'POST'
     });
 

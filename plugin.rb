@@ -42,19 +42,19 @@ after_initialize do
 
     # User API
     #  TODO: isolate this as a Rails engine
-    get "/apim/credentials/:username" => "apim#list",
+    get "/apim/credentials/user/:username" => "apim#list_for_user",
     :constraints => {
       username: RouteFormat.username,
     }
   
-    post "/apim/credentials/:username/:product" => 'apim#create',
+    post "/apim/credentials/user/:username/:product" => 'apim#create_for_user',
       :constraints => {
         username: RouteFormat.username,
       }
     
     # This is a POST, following the upstream Azure API
     # presumably a protection against XSRF 
-    post "/apim/credentials/:username/:product/show" => 'apim#show',
+    post "/apim/credentials/user/:username/:product/show" => 'apim#show_for_user',
       :constraints => {
         username: RouteFormat.username,
       }

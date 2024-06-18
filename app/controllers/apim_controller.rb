@@ -58,7 +58,7 @@ class ApimController < ::ApplicationController
     }
   end
 
-  def list
+  def list_for_user
     user = current_user
     username = self.azure_username(user)
 
@@ -91,7 +91,7 @@ class ApimController < ::ApplicationController
     render json: ret
   end
 
-  def create
+  def create_for_user
     user = current_user
     username = self.azure_username(user)
 
@@ -117,7 +117,7 @@ class ApimController < ::ApplicationController
     head 201
   end
 
-  def show
+  def show_for_user
     user = current_user
     
     subscriptions = self.subscriptions_for_user(user)
