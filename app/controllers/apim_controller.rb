@@ -98,8 +98,14 @@ class ApimController < ::ApplicationController
       [product, subscription_for_product(product, subscriptions)]
     }
 
-    product_data = subscriptions_by_product.filter_map { |product, subscription|
+    subscriptions_by_product.filter_map { |product, subscription|
       build_product_data(product, subscription) if include_product.call(product, subscription)
+    }
+  end
+
+  def list_for_user
+    product_data = list(azure_username_for_current_user) { |product|
+      product["properties"]["approvalRequired"] == false
     }
 
     ret = {
@@ -109,20 +115,21 @@ class ApimController < ::ApplicationController
     render json: ret
   end
 
-  def list_for_user
-    list(azure_username_for_current_user) { |product|
-      product["properties"]["approvalRequired"] == false
-    }
-  end
-
   def list_for_group
     # checks we are a member or can admin this group
     group = find_group(:id)
     username = azure_username_for_group(group)
 
-    list(username) { |product, subscription|
+    product_data = list(username) { |product, subscription|
       guardian.is_admin? || subscription != nil
     }
+
+    ret = {
+      "api_keys": product_data,
+      "additional_reporting_subscriptions": ['one', 'two']
+    }
+
+    render json: ret
   end
 
   def create_for_user

@@ -23,5 +23,10 @@ export default class UserApimController extends Controller {
     const credential = this.model.credentials.find(credential => credential.product === product);
     credential.apiKey = primaryKey;
   }
+
+  @action
+  setAdditionalReportingSubscriptions(ev) {
+    console.log('!! setAdditionalReportingSubscriptions', { model: this.model, ev });
+  }
 }
 
