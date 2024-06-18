@@ -27,11 +27,11 @@ class ApimController < ::ApplicationController
   end
 
   def azure_username_for_current_user()
-    self.azure_username(current_user, default: current_user.email)
+    azure_username(current_user, default: current_user.email)
   end
 
   def azure_username_for_group(group)
-    self.azure_username(group, default: group.name)
+    azure_username(group, default: group.name)
   end
 
   def subscriptions_for_azure_user(username)
@@ -92,7 +92,7 @@ class ApimController < ::ApplicationController
       .select { |product| !is_weird_azure_default_product(product) }
 
     # What you actually have credentials for
-    subscriptions = self.subscriptions_for_azure_user(azure_username)
+    subscriptions = subscriptions_for_azure_user(azure_username)
 
     subscriptions_by_product = products.map { |product|
       [product, subscription_for_product(product, subscriptions)]
@@ -110,7 +110,7 @@ class ApimController < ::ApplicationController
   end
 
   def list_for_user
-    self.list(self.azure_username_for_current_user) { |product|
+    list(azure_username_for_current_user) { |product|
       product["properties"]["state"] == "published"
     }
   end
@@ -118,9 +118,9 @@ class ApimController < ::ApplicationController
   def list_for_group
     # checks we are a member or can admin this group
     group = find_group(:id)
-    username = self.azure_username_for_group(group)
+    username = azure_username_for_group(group)
 
-    self.list(username) { |product, subscription|
+    list(username) { |product, subscription|
       guardian.is_admin? || (
         product["properties"]["state"] == "notPublished" &&
           subscription != nil)
@@ -129,7 +129,7 @@ class ApimController < ::ApplicationController
 
   def create_for_user
     user = current_user
-    username = self.azure_username_for_current_user
+    username = azure_username_for_current_user
 
     apim = AzureAPIM.instance
 
@@ -158,7 +158,7 @@ class ApimController < ::ApplicationController
     return head 403 unless guardian.is_admin?
 
     group = find_group(:id)
-    username = self.azure_username_for_group(group)
+    username = azure_username_for_group(group)
 
     # Required by Azure but we don't need them
     # Fill them in with data that doesn't look bad in their UI
@@ -185,8 +185,8 @@ class ApimController < ::ApplicationController
   end
 
   def show_for_user
-    subscriptions = self.subscriptions_for_azure_user(self.azure_username_for_current_user)
-    subscription = self.subscription_for_product_name(params[:product], subscriptions)
+    subscriptions = subscriptions_for_azure_user(azure_username_for_current_user)
+    subscription = subscription_for_product_name(params[:product], subscriptions)
 
     return head 404 unless subscription
 

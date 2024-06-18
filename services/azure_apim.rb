@@ -91,23 +91,23 @@ class AzureAPIM
   end
 
   def list_products
-    self.request(Net::HTTP::Get, "products")
+    request(Net::HTTP::Get, "products")
   end
 
   def list_subscriptions
-    self.request(Net::HTTP::Get, "subscriptions", params: {
+    request(Net::HTTP::Get, "subscriptions", params: {
       '$top': 1000
     })
   end
 
   def list_users
-    self.request(Net::HTTP::Get, "users", params: {
+    request(Net::HTTP::Get, "users", params: {
       '$top': 1000
     })
   end
 
   def list_subscriptions_for_user(user:)
-    self.request(Net::HTTP::Get, "users/#{user}/subscriptions")
+    request(Net::HTTP::Get, "users/#{user}/subscriptions")
   end
 
   def create_or_update_user(user:, email:, first_name:, last_name:)
@@ -119,7 +119,7 @@ class AzureAPIM
       }
     }
 
-    self.request(Net::HTTP::Put, "users/#{user}", body: JSON.generate(body))
+    request(Net::HTTP::Put, "users/#{user}", body: JSON.generate(body))
   end
 
   def create_subscription_to_product(user:, product:, email:)
@@ -133,11 +133,11 @@ class AzureAPIM
       }
     }
 
-    self.request(Net::HTTP::Put, "subscriptions/#{sid}", body: JSON.generate(body))
+    request(Net::HTTP::Put, "subscriptions/#{sid}", body: JSON.generate(body))
   end
 
   def show_api_keys(sid:)
-    self.request(Net::HTTP::Post, "subscriptions/#{sid}/listSecrets")
+    request(Net::HTTP::Post, "subscriptions/#{sid}/listSecrets")
   end
 
   def get_usage(start_time:, end_time:)
@@ -150,7 +150,7 @@ class AzureAPIM
       end_time_clause = " and timestamp le datetime'#{end_time.strftime(fmt)}'"
     end
 
-    self.request(Net::HTTP::Get, "reports/bySubscription", params: {
+    request(Net::HTTP::Get, "reports/bySubscription", params: {
       "$filter": "#{start_time_clause}#{end_time_clause}"
     })
   end
