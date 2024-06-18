@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 export class ApimCredential {
   @tracked apiKey;
 
-  constructor(product, displayName, enabled, usage) {
+  constructor({ product, displayName, enabled, usage }) {
     this.product = product;
     this.displayName = displayName;
     this.enabled = enabled;

@@ -11,9 +11,7 @@ export default class UserApimRoute extends Route {
 
     const { api_keys } = await ajax(`/apim/credentials/user/${username}`);
 
-    const credentials = api_keys.map(({ product, displayName, enabled, usage }) =>
-      new ApimCredential(product, displayName, enabled, usage)
-    );
+    const credentials = api_keys.map(params => new ApimCredential(params));
 
     return {
       user,

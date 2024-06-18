@@ -1,4 +1,10 @@
 <div class="user-content apim" id="user-content">
-  <strong>It lives!</strong>
+  {{#each model.credentials as |credential|}}
+    {{#apim-credential
+      credential=credential
+      showApiKey=(action "showApiKey" credential.product)
+      createApiKey=(action "createApiKey" credential.product)
+    }}
+    {{/apim-credential}}
+  {{/each}}
 </div>
-
