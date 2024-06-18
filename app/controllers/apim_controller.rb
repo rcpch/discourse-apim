@@ -126,7 +126,7 @@ class ApimController < ::ApplicationController
 
   def create_for_user
     user = current_user
-    username = self.azure_username(user)
+    username = self.azure_username_for_current_user
 
     apim = AzureAPIM.instance
 
