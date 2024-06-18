@@ -16,15 +16,12 @@ export default class UserApimController extends Controller {
 
   @action
   async showApiKey(product) {
-    console.log('group.showApiKey', { product });
-    // const { username } = this.model.user;
+    const { primaryKey } = await ajax(`/apim/credentials/group/${this.model.name}/${product}/show`, {
+      method: 'POST'
+    });
 
-    // const { primaryKey } = await ajax(`/apim/credentials/group/${username}/${product}/show`, {
-    //   method: 'POST'
-    // });
-
-    // const credential = this.model.credentials.find(credential => credential.product === product);
-    // credential.apiKey = primaryKey;
+    const credential = this.model.credentials.find(credential => credential.product === product);
+    credential.apiKey = primaryKey;
   }
 }
 

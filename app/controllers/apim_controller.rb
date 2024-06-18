@@ -196,4 +196,21 @@ class ApimController < ::ApplicationController
 
     render json: ret
   end
+
+  def show_for_group
+    group = find_group(:id)
+    username = azure_username_for_group(group)
+
+    subscriptions = subscriptions_for_azure_user(username)
+
+    subscription = subscription_for_product_name(params[:product], subscriptions)
+
+    return head 404 unless subscription
+
+    ret = AzureAPIM.instance.show_api_keys(
+      sid: subscription['name']
+    )
+
+    render json: ret
+  end
 end
