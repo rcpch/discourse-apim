@@ -91,6 +91,14 @@ class ApimController < ::ApplicationController
     render json: ret
   end
 
+  def list_for_group
+    ret = {
+      "api_keys": []
+    }
+
+    render json: ret
+  end
+
   def create_for_user
     user = current_user
     username = self.azure_username(user)

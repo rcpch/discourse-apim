@@ -46,6 +46,8 @@ after_initialize do
     :constraints => {
       username: RouteFormat.username,
     }
+
+    get "/apim/credentials/group/:name" => "apim#list_for_group"
   
     post "/apim/credentials/user/:username/:product" => 'apim#create_for_user',
       :constraints => {
