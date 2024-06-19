@@ -9,7 +9,7 @@ export default class UserApimRoute extends Route {
     const user = withPluginApi("1.31.0", api => api.getCurrentUser());
     const { username } = user;
 
-    const { api_keys } = await ajax(`/apim/credentials/user/${username}`);
+    const { api_keys } = await ajax(`/apim/users/${username}`);
 
     const credentials = api_keys.map(params => new ApimCredential(params));
 

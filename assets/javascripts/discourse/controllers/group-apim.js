@@ -5,7 +5,7 @@ import { ajax } from "discourse/lib/ajax";
 export default class UserApimController extends Controller {
   @action
   async createApiKey(product) {
-    await ajax(`/apim/credentials/group/${this.model.name}/${product}`, {
+    await ajax(`/apim/groups/${this.model.name}/products/${product}`, {
       method: 'POST'
     });
 
@@ -16,7 +16,7 @@ export default class UserApimController extends Controller {
 
   @action
   async showApiKey(product) {
-    const { primaryKey } = await ajax(`/apim/credentials/group/${this.model.name}/${product}/show`, {
+    const { primaryKey } = await ajax(`/apim/groups/${this.model.name}/products/${product}/showCredentials`, {
       method: 'POST'
     });
 
