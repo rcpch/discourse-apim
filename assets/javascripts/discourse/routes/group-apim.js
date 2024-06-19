@@ -1,4 +1,5 @@
 import Route from "@ember/routing/route";
+import { action } from '@ember/object';
 import { ajax } from "discourse/lib/ajax";
 import { ApimCredential } from "../lib/apim-credential";
 
@@ -20,5 +21,10 @@ export default class GroupApimRoute extends Route {
         .map(({ name }) => name)
         .join('\n')
     };
+  }
+
+  @action
+  refreshModel() {
+    this.refresh()
   }
 }
