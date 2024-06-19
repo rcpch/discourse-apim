@@ -124,15 +124,15 @@ class ApimController < ::ApplicationController
       guardian.is_admin? || subscription != nil
     }
 
-    additional_reporting_subscriptions = nil
+    reporting_subscriptions = nil
     if guardian.is_admin?
       custom_apim_fields = group.custom_fields['apim'] ||= {}
-      additional_reporting_subscriptions = custom_apim_fields['additional_reporting_subscriptions'] ||= []
+      reporting_subscriptions = custom_apim_fields['reporting_subscriptions'] ||= []
     end
 
     ret = {
       "api_keys": product_data,
-      "additional_reporting_subscriptions": additional_reporting_subscriptions
+      "reporting_subscriptions": reporting_subscriptions
     }
 
     render json: ret
@@ -186,11 +186,20 @@ class ApimController < ::ApplicationController
       last_name: last_name
     )
 
-    apim.create_subscription_to_product(
+    subscription_name = apim.create_subscription_to_product(
       user: username,
       email: email,
       product: params[:product]
     )
+
+    custom_apim_fields = group.custom_fields['apim'] ||= {}
+    reporting_subscriptions = custom_apim_fields['reporting_subscriptions'] ||= []
+
+    reporting_subscriptions.append({
+      :name => subscription_name
+    })
+
+    group.save_custom_fields
 
     head 201
   end
@@ -225,15 +234,15 @@ class ApimController < ::ApplicationController
     render json: ret
   end
 
-  def set_additional_reporting_subscriptions
+  def set_reporting_subscriptions
     return head 403 unless guardian.is_admin?
 
     group = find_group(:id)
 
-    additional_reporting_subscriptions = params[:subscription_names]
+    reporting_subscriptions = params[:subscriptions]
 
     custom_apim_fields = group.custom_fields['apim'] ||= {}
-    custom_apim_fields['additional_reporting_subscriptions'] = additional_reporting_subscriptions
+    custom_apim_fields['reporting_subscriptions'] = reporting_subscriptions
 
     group.custom_fields['apim'] = custom_apim_fields
     group.save_custom_fields

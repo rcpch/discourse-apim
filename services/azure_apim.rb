@@ -130,6 +130,8 @@ class AzureAPIM
     }
 
     request(Net::HTTP::Put, "subscriptions/#{sid}", body: JSON.generate(body))
+
+    sid
   end
 
   def show_api_keys(sid:)

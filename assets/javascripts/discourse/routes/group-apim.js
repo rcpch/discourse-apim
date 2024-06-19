@@ -5,7 +5,7 @@ import { ApimCredential } from "../lib/apim-credential";
 export default class GroupApimRoute extends Route {
   async model() {
     const { name } = this.modelFor("group");
-    const { api_keys, additional_reporting_subscriptions } = await ajax(`/apim/groups/${name}`);
+    const { api_keys, reporting_subscriptions } = await ajax(`/apim/groups/${name}`);
     
     const credentials = api_keys.map(params => new ApimCredential(params));
 
@@ -13,9 +13,12 @@ export default class GroupApimRoute extends Route {
       name,
       credentials,
       // Handlebars doesn't have a sensible way to tell a field is missing vs an empty list
-      showAdditionalReportingSubscriptions: additional_reporting_subscriptions?.length > -1,
+      // Only admins can see this list
+      showReportingSubscriptions: reporting_subscriptions?.length > -1,
       // TODO MRB: why can't I just pass a list here?!
-      additionalReportingSubscriptions: (additional_reporting_subscriptions ?? []).join('\n')
+      reportingSubscriptions: (reporting_subscriptions ?? [])
+        .map(({ name }) => name)
+        .join('\n')
     };
   }
 }

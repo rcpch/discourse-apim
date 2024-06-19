@@ -65,7 +65,7 @@ after_initialize do
 
     post "/apim/groups/:id/products/:product/showCredentials" => 'apim#show_for_group'
 
-    put "/apim/groups/:id/additionalReportingSubscriptions" => 'apim#set_additional_reporting_subscriptions'
+    put "/apim/groups/:id/reportingSubscriptions" => 'apim#set_reporting_subscriptions'
     
     # Admin API
     get "/apim/usage/report" => 'apim_usage#report'
