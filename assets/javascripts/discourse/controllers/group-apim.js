@@ -25,8 +25,14 @@ export default class UserApimController extends Controller {
   }
 
   @action
-  setAdditionalReportingSubscriptions(ev) {
-    console.log('!! setAdditionalReportingSubscriptions', { model: this.model, ev });
+  async setAdditionalReportingSubscriptions(subscriptionNames) {
+    await ajax(`/apim/groups/${this.model.name}/additionalReportingSubscriptions`, {
+      method: 'PUT',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        subscription_names: subscriptionNames
+      })
+    });
   }
 }
 

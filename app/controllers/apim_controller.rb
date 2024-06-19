@@ -224,4 +224,20 @@ class ApimController < ::ApplicationController
 
     render json: ret
   end
+
+  def set_additional_reporting_subscriptions
+    return head 403 unless guardian.is_admin?
+
+    group = find_group(:id)
+
+    additional_reporting_subscriptions = params[:subscription_names]
+
+    custom_apim_fields = group.custom_fields['apim'] ||= {}
+    custom_apim_fields['additional_reporting_subscriptions'] = additional_reporting_subscriptions
+
+    group.custom_fields['apim'] = custom_apim_fields
+    group.save_custom_fields
+
+    head 204
+  end
 end
