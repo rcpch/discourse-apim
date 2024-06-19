@@ -87,4 +87,23 @@ class UsageReporting
       [subscription['name'], metadata]
     }
   end
+
+  def self.get_metadata_for_subscriptions_assigned_to_groups()
+    ret = {}
+
+    Group.find_each { |group|
+      apim_custom_fields = group.custom_fields['apim'] || {}
+      reporting_subscriptions = apim_custom_fields['reporting_subscriptions'] || []
+
+      reporting_subscriptions.each { |subscription|
+        ret[subscription['name']] = {
+          :display_name => group.full_name,
+          :email => "-",
+          :owner_name => group.full_name
+        }
+      }
+    }
+
+    ret
+  end
 end

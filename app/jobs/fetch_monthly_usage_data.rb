@@ -18,6 +18,9 @@ module Jobs
         metadata = metadata.merge(additional_metadata)
       end
 
+      group_assigned_metadata = UsageReporting.get_metadata_for_subscriptions_assigned_to_groups
+      metadata = metadata.merge(group_assigned_metadata)
+
       (0..12).map { |n|
         start_time = Time.now.beginning_of_month - n.months
         end_time = n == 0 ? nil : start_time.end_of_month
