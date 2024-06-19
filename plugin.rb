@@ -42,7 +42,7 @@ after_initialize do
 
     # User API
     #  TODO: isolate this as a Rails engine
-    get "/apim/users/:username/credentials" => "apim#list_for_user",
+    get "/apim/users/:username" => "apim#list_for_user",
     :constraints => {
       username: RouteFormat.username,
     }
