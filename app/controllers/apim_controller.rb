@@ -124,7 +124,7 @@ class ApimController < ::ApplicationController
       guardian.is_admin? || subscription != nil
     }
 
-    additional_reporting_subscriptions = []
+    additional_reporting_subscriptions = nil
     if guardian.is_admin?
       custom_apim_fields = group.custom_fields['apim'] ||= {}
       additional_reporting_subscriptions = custom_apim_fields['additional_reporting_subscriptions'] ||= []

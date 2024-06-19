@@ -7,16 +7,18 @@
     }}
     {{/apim-credential}}
   {{/each}}
-  <div class="additional-subscriptions">
-    <div class="additional-subscription-title">
-      Additional reporting subscriptions
+  {{#if model.showAdditionalReportingSubscriptions}}
+    <div class="additional-subscriptions">
+      <div class="additional-subscription-title">
+        Additional reporting subscriptions
+      </div>
+      API usage through these subscriptions will be assigned to this group in the report
+      <div class="new-additional-subscription">
+        <SimpleList
+          @values={{model.additionalReportingSubscriptions}}
+          @onChange={{this.setAdditionalReportingSubscriptions}}
+        />
+      </div>
     </div>
-    API usage through these subscriptions will be assigned to this group in the report
-    <div class="new-additional-subscription">
-      <SimpleList
-        @values={{model.additionalReportingSubscriptions}}
-        @onChange={{this.setAdditionalReportingSubscriptions}}
-      />
-    </div>
-  </div>
+  {{/if}}
 </div>
