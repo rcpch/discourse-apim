@@ -15,7 +15,7 @@ end
 class AzureAPIM
   def initialize(service_name:, subscription_id:, resource_group_name:, management_key:)
     @management_key = management_key
-    @base_url = "https://#{service_name}.management.azure-api.net/subscriptions/#{subscription_id}/resourceGroups/#{resource_group_name}/providers/Microsoft.ApiManagement/service/#{service_name}"
+    @base_url = "https://management.azure.com/subscriptions/#{subscription_id}/resourceGroups/#{resource_group_name}/providers/Microsoft.ApiManagement/service/#{service_name}"
   end
 
   def self.instance
@@ -43,16 +43,11 @@ class AzureAPIM
     end
   end
 
-  def generate_token
-    identifier = "integration"
+  def get_access_token
+    # TODO MRB: read from VM metadata endpoint when deployed
+    json = JSON.parse(`az account get-access-token`)
     
-    expiry = (Time.now + 1.hour).strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
-    string_to_sign = "#{identifier}\n#{expiry}"
-    
-    digest = OpenSSL::HMAC.digest("SHA512", @management_key, string_to_sign)
-    sn = Base64.strict_encode64(digest)
-    
-    "uid=integration&ex=#{expiry}&sn=#{sn}"
+    return json['accessToken']
   end
 
   def request(method, endpoint, params: {}, body: nil)
@@ -62,7 +57,7 @@ class AzureAPIM
     url = UrlHelper.encode_and_parse("#{@base_url}/#{endpoint}?#{param_string}")
 
     request = method.new(url)
-    request['Authorization'] = "SharedAccessSignature #{self.generate_token}"
+    request['Authorization'] = "Bearer #{self.get_access_token}"
 
     if body
       request['Content-Type'] = "application/json"

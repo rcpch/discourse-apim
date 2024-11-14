@@ -13,6 +13,12 @@ RCPCH API access management within Discourse
   - `d/boot_dev --init`
   - Run the Rails backend in one terminal: `d/rails s`
   - Run the Ember frontend in another: `d/ember-cli`
+- Install the Azure CLI in the dev container
+  - `d/exec /bin/bash` to get a shell
+  - `curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash` (https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt)
+- Login so the container can access the Azure APIs
+  - `az login --use-device-code`
+  - Follow the instructions
 
 ## Implemented
 
