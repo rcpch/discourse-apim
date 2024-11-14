@@ -43,11 +43,70 @@ class AzureAPIM
     end
   end
 
-  def get_access_token
-    # TODO MRB: read from VM metadata endpoint when deployed
-    json = JSON.parse(`az account get-access-token`)
-    
+  def access_token_from_cli
+    # Not running in VM in Azure, use CLI
+    response = `az account get-access-token`
+
+    json = JSON.parse(response)
+
     return json['accessToken']
+  end
+
+  def access_token_from_vm_metadata_api
+    # https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-use-vm-token#get-a-token-using-http
+    url = UrlHelper.encode_and_parse("http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/")
+
+    request = Net::HTTP::Get.new(url)
+    request['Metadata'] = 'true'
+
+    response = Net::HTTP.start(url.host, url.port, :read_timeout => 500) do |http|
+      http.request(request)
+    end
+
+    json = JSON.parse(response)
+
+    return json['access_token']
+  end
+
+  def get_access_token
+    # Both the HTTP API and CLI command cache their return value so it's fine to call them every time
+    # We remember which one we're supposed to use though to avoid waiting the connect timeout in local dev every time
+
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    puts "!! use_cli: #{@use_cli}   !!"
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+    if @use_cli
+      return self.access_token_from_cli
+    else
+      begin
+        self.access_token_from_vm_metadata_api
+      rescue Errno::EHOSTUNREACH
+        @use_cli = true
+        return self.access_token_from_cli
+      end
+    end
+
+    # # https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-use-vm-token#get-a-token-using-http
+    # url = UrlHelper.encode_and_parse("http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/")
+
+    # request = Net::HTTP::Get.new(url)
+    # request['Metadata'] = 'true'
+
+    # begin
+    #   response = Net::HTTP.start(url.host, url.port, :read_timeout => 500) do |http|
+    #     http.request(request)
+    #   end
+
+    #   json = JSON.parse(response)
+
+    #   return json['access_token']
+
+    # rescue Errno::EHOSTUNREACH
+    #   @use_cli = true
+
+      
+    # end
   end
 
   def request(method, endpoint, params: {}, body: nil)
