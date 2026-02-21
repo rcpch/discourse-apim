@@ -1,6 +1,6 @@
-require "base64"
 require "net/http"
 require "json"
+require_relative "./azure_token"
 
 
 class AzureAPIMError < StandardError
@@ -44,15 +44,11 @@ class AzureAPIM
   end
 
   def generate_token
-    identifier = "integration"
-    
-    expiry = (Time.now + 1.hour).strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
-    string_to_sign = "#{identifier}\n#{expiry}"
-    
-    digest = OpenSSL::HMAC.digest("SHA512", @management_key, string_to_sign)
-    sn = Base64.strict_encode64(digest)
-    
-    "uid=integration&ex=#{expiry}&sn=#{sn}"
+    AzureToken.new(
+      identifier: "integration",
+      management_key: @management_key,
+      expires_at: Time.now + 1.hour
+    ).to_s
   end
 
   def request(method, endpoint, params: {}, body: nil)
