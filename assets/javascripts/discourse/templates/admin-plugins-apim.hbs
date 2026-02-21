@@ -1,2 +1,23 @@
-<button {{action "refresh"}} class="btn">Refresh Usage Data</button>
-<button {{action "downloadReport"}} class="btn">Download Usage Report</button>
+<DBreadcrumbsContainer />
+
+<DPageHeader
+  @titleLabel="admin.config.apim.title"
+  @descriptionLabel="admin.config.apim.header_description"
+>
+  <:breadcrumbs>
+    <DBreadcrumbsItem @path="/admin" @label={{i18n "admin_title"}} />
+    <DBreadcrumbsItem @path="/admin/plugins" @label={{i18n "admin.plugins.title"}} />
+    <DBreadcrumbsItem @path="/admin/plugins/apim" @label={{i18n "admin.config.apim.title"}} />
+  </:breadcrumbs>
+
+  <:actions as |actions|>
+    <actions.Primary
+      @action={{this.refresh}}
+      @label="admin.config.apim.actions.refresh_usage"
+    />
+    <actions.Default
+      @action={{this.downloadReport}}
+      @label="admin.config.apim.actions.download_report"
+    />
+  </:actions>
+</DPageHeader>
