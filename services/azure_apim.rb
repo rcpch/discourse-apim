@@ -1,4 +1,3 @@
-require "base64"
 require "net/http"
 require "json"
 
@@ -13,9 +12,8 @@ class AzureAPIMError < StandardError
 end
 
 class AzureAPIM
-  def initialize(service_name:, subscription_id:, resource_group_name:, management_key:)
-    @management_key = management_key
-    @base_url = "https://#{service_name}.management.azure-api.net/subscriptions/#{subscription_id}/resourceGroups/#{resource_group_name}/providers/Microsoft.ApiManagement/service/#{service_name}"
+  def initialize(service_name:, subscription_id:, resource_group_name:)
+    @base_url = "https://management.azure.com/subscriptions/#{subscription_id}/resourceGroups/#{resource_group_name}/providers/Microsoft.ApiManagement/service/#{service_name}"
   end
 
   def self.instance
@@ -24,7 +22,6 @@ class AzureAPIM
       service_name: SiteSetting.get('discourse_apim_azure_service_name'),
       subscription_id: SiteSetting.get('discourse_apim_azure_subscription_id'),
       resource_group_name: SiteSetting.get('discourse_apim_azure_resource_group_name'),
-      management_key: SiteSetting.get('discourse_apim_azure_management_key'),
     }
 
     @@instance ||= AzureAPIM.new(**config)
@@ -35,24 +32,53 @@ class AzureAPIM
       subscription_id: SiteSetting.get('discourse_apim_azure_subscription_id'),
       resource_group_name: SiteSetting.get('discourse_apim_azure_resource_group_name'),
       service_name: SiteSetting.discourse_apim_azure_additional_reporting_service_name,
-      management_key: SiteSetting.discourse_apim_azure_additional_reporting_management_key
     }
 
-    if config[:service_name] and config[:management_key]
+    if config[:service_name].present?
       @@additional_reporting_instance ||= AzureAPIM.new(**config)
     end
   end
 
-  def generate_token
-    identifier = "integration"
-    
-    expiry = (Time.now + 1.hour).strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
-    string_to_sign = "#{identifier}\n#{expiry}"
-    
-    digest = OpenSSL::HMAC.digest("SHA512", @management_key, string_to_sign)
-    sn = Base64.strict_encode64(digest)
-    
-    "uid=integration&ex=#{expiry}&sn=#{sn}"
+  # The direct APIM management API (and its shared access signature keys) was retired in
+  # March 2025, so we authenticate against the Azure Resource Manager API instead, using an
+  # access token from the VM's managed identity:
+  # https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-use-vm-token#get-a-token-using-http
+  #
+  # Both the instance metadata service and the CLI cache the token they return until shortly
+  # before it expires, so it's fine to call this on every request rather than caching it
+  # ourselves.
+  def get_access_token
+    if @use_cli
+      access_token_from_cli
+    else
+      begin
+        access_token_from_managed_identity
+      rescue SystemCallError, SocketError, Net::OpenTimeout, Net::ReadTimeout
+        # There's no managed identity to talk to outside of an Azure VM (eg. local dev) -
+        # fall back to the Azure CLI, and remember to do so next time so we don't pay the
+        # metadata service's connection timeout on every request.
+        @use_cli = true
+        access_token_from_cli
+      end
+    end
+  end
+
+  def access_token_from_managed_identity
+    url = UrlHelper.encode_and_parse("http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/")
+
+    request = Net::HTTP::Get.new(url)
+    request['Metadata'] = 'true'
+
+    response = Net::HTTP.start(url.host, url.port, :open_timeout => 1, :read_timeout => 5) do |http|
+      http.request(request)
+    end
+
+    JSON.parse(response.body)['access_token']
+  end
+
+  def access_token_from_cli
+    # Not running on a VM with a managed identity - fall back to the Azure CLI, eg. for local dev
+    JSON.parse(`az account get-access-token`)['accessToken']
   end
 
   def request(method, endpoint, params: {}, body: nil)
@@ -62,7 +88,7 @@ class AzureAPIM
     url = UrlHelper.encode_and_parse("#{@base_url}/#{endpoint}?#{param_string}")
 
     request = method.new(url)
-    request['Authorization'] = "SharedAccessSignature #{self.generate_token}"
+    request['Authorization'] = "Bearer #{self.get_access_token}"
 
     if body
       request['Content-Type'] = "application/json"

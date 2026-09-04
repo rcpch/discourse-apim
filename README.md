@@ -13,6 +13,10 @@ RCPCH API access management within Discourse
   - `d/boot_dev --init`
   - Run the Rails backend in one terminal: `d/rails s`
   - Run the Ember frontend in another: `d/ember-cli`
+- Install the Azure CLI in the dev container so the plugin can authenticate against Azure APIM locally (there's no VM managed identity to fall back on outside of production - see below)
+  - `d/exec /bin/bash` to get a shell
+  - `curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash` (https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt)
+- Log in so the container can access the Azure APIs: `az login --use-device-code` and follow the instructions
 
 ## Implemented
 
@@ -46,10 +50,7 @@ Each row in the plugin UI is a combination of three Azure APIM concepts:
 
 From now on if we refer to "User" below it can be both users that represent individuals on the free tier and a user representing a group.
 
-The discourse plugion talks to the API management API directly:
-
-- https://learn.microsoft.com/en-us/rest/api/apimanagement/apimanagementrest/api-management-rest
-- https://learn.microsoft.com/en-us/rest/api/apimanagement/apimanagementrest/azure-api-management-rest-api-authentication#ProgrammaticallyCreateToken
+The Discourse plugin talks to Azure APIM through the [Azure Resource Manager REST API](https://learn.microsoft.com/en-us/rest/api/apimanagement/apimanagementrest/api-management-rest) (the older direct APIM management API, and the shared access signature keys it used, were [retired in March 2025](https://learn.microsoft.com/en-us/azure/api-management/breaking-changes/direct-management-api-retirement-march-2025)). We authenticate with an access token for the production VM's [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-use-vm-token), which needs an RBAC role assignment (eg. API Management Service Contributor) on the resource group. Locally there's no managed identity to use, so the plugin falls back to `az account get-access-token` - hence the Azure CLI setup step above.
 
 To generate the list of APIs we combine the following API calls:
 
