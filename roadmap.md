@@ -12,4 +12,4 @@
 - [ ] Store usage data as Rails models so it can be queried in Data Explorer
 - [ ] Store a "last updated" timestamp for usage data to display in the UI
 - [ ] Add a lifecycle integer and two-phase updates to guarantee consistent usage data
-- [ ] Investigate why `SimpleList` cannot accept a list directly (remove newline join workaround)
+- [x] Investigate why `SimpleList` cannot accept a list directly (remove newline join workaround) - replaced with select-kit's `ListSetting`, which takes an array

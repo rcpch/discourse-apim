@@ -1,25 +1,15 @@
-import DBreadcrumbsItem from "discourse/ui-kit/d-breadcrumbs-item";
 import DPageHeader from "discourse/ui-kit/d-page-header";
 import { i18n } from "discourse-i18n";
 
+// The admin plugin chrome already renders the breadcrumbs and the plugin tab
+// nav around this template, so we only contribute the title, description and
+// actions here.
 export default <template>
   <DPageHeader
     @titleLabel={{i18n "admin.config.apim.title"}}
     @descriptionLabel={{i18n "admin.config.apim.header_description"}}
     @hideTabs={{true}}
   >
-    <:breadcrumbs>
-      <DBreadcrumbsItem @path="/admin" @label={{i18n "admin_title"}} />
-      <DBreadcrumbsItem
-        @path="/admin/plugins"
-        @label={{i18n "admin.plugins.title"}}
-      />
-      <DBreadcrumbsItem
-        @path="/admin/plugins/apim"
-        @label={{i18n "admin.config.apim.title"}}
-      />
-    </:breadcrumbs>
-
     <:actions as |actions|>
       <actions.Primary
         @action={{@controller.refresh}}

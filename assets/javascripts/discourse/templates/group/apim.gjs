@@ -1,6 +1,6 @@
 import { fn, hash } from "@ember/helper";
 import ListSetting from "discourse/select-kit/components/list-setting";
-import ApimCredential from "../components/apim-credential";
+import ApimCredential from "../../components/apim-credential";
 
 export default <template>
   <div class="user-content apim" id="user-content">

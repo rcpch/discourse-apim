@@ -11,8 +11,8 @@ RCPCH API access management within Discourse
   - In the Discourse repo run `ln -s [location of this repo] plugins/discourse-apim`
 - Follow the [Discourse Docker development instructions](https://meta.discourse.org/t/install-discourse-for-development-using-docker/102009#step-2-start-container-6)
   - `d/boot_dev --init`
-  - Run the Rails backend in one terminal: `d/rails s`
-  - Run the Ember frontend in another: `d/ember-cli`
+  - Run the app: `d/exec bin/dev` (Discourse now serves the Rails backend and the Ember frontend from a single port; the old `d/rails s` + `d/ember-cli` pair is deprecated)
+- Plugin JavaScript is compiled into `app/assets/generated/discourse-apim/` when the app boots, and the Ruby is loaded once at boot, so restart the server after changing either.
 - Install the Azure CLI in the dev container so the plugin can authenticate against Azure APIM locally (there's no VM managed identity to fall back on outside of production - see below)
   - `d/exec /bin/bash` to get a shell
   - `curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash` (https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt)

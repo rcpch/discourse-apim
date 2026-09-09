@@ -1,5 +1,5 @@
 import { fn } from "@ember/helper";
-import ApimCredential from "../components/apim-credential";
+import ApimCredential from "../../components/apim-credential";
 
 export default <template>
   <div class="user-content apim" id="user-content">

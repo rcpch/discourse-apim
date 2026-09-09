@@ -51,14 +51,16 @@ class UsageReporting
   end
 
   def self.generate_report_csv(monthly_report_objects)
+    return "" if monthly_report_objects.empty?
+
     headers = monthly_report_objects[0].keys
 
     ret = [
       CSV.generate_line(headers)
     ]
 
-    monthly_report_objects[1..].each { |report_object|
-      ret.append(CSV.generate_line(report_object.values))
+    monthly_report_objects.each { |report_object|
+      ret.append(CSV.generate_line(report_object.values_at(*headers)))
     }
 
     # generate_line does the newlines for us

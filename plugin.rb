@@ -24,16 +24,11 @@ after_initialize do
         }
     end
 
+    # Mirrors how core registers its own group tabs: the route has to supply
+    # :name, because GroupsController#show looks a :id param up by primary key.
     %w[groups g].each do |root_path|
-      resources :groups,
-                only: %i[index show new edit update],
-                id: RouteFormat.username,
-                path: root_path do
-        member do
-          %w[
-            apim
-          ].each { |path| get path => "groups#show" }
-        end
+      scope path: "#{root_path}/:name", constraints: { name: RouteFormat.username } do
+        get "apim" => "groups#show"
       end
     end
 

@@ -2,7 +2,7 @@ import { action } from '@ember/object';
 import Route from "@ember/routing/route";
 import { ajax } from "discourse/lib/ajax";
 import { withPluginApi } from "discourse/lib/plugin-api";
-import { ApimCredential } from "../lib/apim-credential";
+import { ApimCredential } from "../../lib/apim-credential";
 
 export default class UserApimRoute extends Route {
   async model() {
