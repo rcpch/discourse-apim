@@ -48,6 +48,36 @@ curl -i -X PUT \
   - `s/apisix up -d --force-recreate` (reload after config changes)
   - `s/apisix down`
 
+## Checking Azure connectivity and permissions
+
+`s/azure-smoke-test.rb` exercises every Azure Resource Manager call the plugin makes and reports, per call, whether the identity you're authenticating as is allowed to make it. It creates and changes nothing. Run it from the Discourse root with the plugin's site settings configured:
+
+```bash
+d/exec bundle exec rails runner plugins/discourse-apim/s/azure-smoke-test.rb
+```
+
+Locally this authenticates as your own `az login`, which confirms the ARM calls work but tells you nothing about the production VM's managed identity. Run it *on the production VM* to check the managed identity itself.
+
+Note that `listSecrets` - which the plugin needs in order to show anyone an API key - is not included in Reader or most other built-in roles. To check the role assignment from the Azure side without deploying anything:
+
+```bash
+# The principal ID of the VM's managed identity
+az vm identity show --resource-group <rg> --name <vm> --query principalId -o tsv
+
+# What that identity can do to the APIM service
+az role assignment list --assignee <principalId> --include-inherited --include-groups \
+  --scope /subscriptions/<subId>/resourceGroups/<rg>/providers/Microsoft.ApiManagement/service/<serviceName> \
+  -o table
+```
+
+## Running the tests
+
+```bash
+s/test
+```
+
+The specs cover the managed identity / Azure CLI token logic, which otherwise only ever runs in production. They use WebMock and need no Azure access.
+
 ## Implemented
 
 - Self service generate API credentials for individuals (ie our free tiers)

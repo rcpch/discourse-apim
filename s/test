@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 run_in_discourse() {
   local discourse_root="$1"
   if [[ -f "$discourse_root/Gemfile" ]]; then
-    (cd "$discourse_root" && bundle exec rspec "$ROOT/spec")
+    (cd "$discourse_root" && LOAD_PLUGINS=1 bundle exec rspec "$ROOT/spec")
     return 0
   fi
   return 1
@@ -14,7 +14,7 @@ run_in_discourse() {
 
 # If this repo has its own Gemfile, run specs here.
 if [[ -f "$ROOT/Gemfile" ]]; then
-  (cd "$ROOT" && bundle exec rspec)
+  (cd "$ROOT" && LOAD_PLUGINS=1 bundle exec rspec)
   exit 0
 fi
 
