@@ -1,0 +1,11 @@
+en:
+  js:
+    admin:
+      apim: "API Management"
+      config:
+        apim:
+          title: "API Management"
+          header_description: "Manage Azure API Management usage reporting and exports."
+          actions:
+            refresh_usage: "Refresh usage data"
+            download_report: "Download usage report"

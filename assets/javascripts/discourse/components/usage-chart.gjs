@@ -1,92 +1,56 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
-import { schedule } from "@ember/runloop";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
 import willDestroy from "@ember/render-modifiers/modifiers/will-destroy";
-import loadScript from "discourse/lib/load-script";
-import discourseDebounce from "discourse-common/lib/debounce";
-import { bind } from "discourse-common/utils/decorators";
+import loadChartJS from "discourse/lib/load-chart-js";
 
 export default class UsageChart extends Component {
-  canvas;
   chart;
 
   @action
-  setup(element) {
-    this.canvas = element;
+  async renderChart(element) {
+    const Chart = await loadChartJS();
 
-    window.addEventListener("resize", this.resizeHandler);
+    // Most recent 12 months, oldest first.
+    const sorted = [...(this.args.data ?? [])]
+      .sort((a, b) => b.month.localeCompare(a.month))
+      .slice(0, 12)
+      .reverse();
 
-    discourseDebounce(this, this.scheduleChartRendering, 100);
-  }
+    const backgroundColor =
+      getComputedStyle(document.body).getPropertyValue("--tertiary") ||
+      "#ffffff";
 
-  @action
-  dataChanged() {
-    discourseDebounce(this, this.scheduleChartRendering, 100);
-  }
-
-  @action
-  teardown() {
-    window.removeEventListener("resize", this.resizeHandler);
     this.resetChart();
-  }
 
-  @bind
-  resizeHandler() {
-    discourseDebounce(this, this.scheduleChartRendering, 500);
-  }
-
-  scheduleChartRendering() {
-    schedule("afterRender", () => {
-      this.renderChart(this.args.data, this.canvas);
-    });
-  }
-
-  renderChart(model, chartCanvas) {
-    if (!chartCanvas) {
-      return;
-    }
-
-    const sorted = model
-      .sortBy('month')
-      .reverse()
-      .slice(0, 12);
-
-    const labels = sorted.map(({ month }) => month);
-    const data = sorted.map(({ count }) => count);
-
-    const backgroundColor = getComputedStyle(document.body).getPropertyValue('--tertiary') ?? '#ffffff';
-
-    const context = chartCanvas.getContext("2d");
-
-    const chartConfig = {
-      type: 'bar',
+    this.chart = new Chart(element.getContext("2d"), {
+      type: "bar",
       data: {
-        labels,
-        datasets: [{
-          data,
-          label: 'Succesful API calls',
-          fill: true,
-          backgroundColor
-        }]
+        labels: sorted.map(({ month }) => month),
+        datasets: [
+          {
+            data: sorted.map(({ count }) => count),
+            label: "Successful API calls",
+            fill: true,
+            backgroundColor,
+          },
+        ],
       },
       options: {
+        // Chart.js handles redrawing on container resize itself.
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
           y: {
-            beginAtZero: true
-          }
-        }
-      }
-    };
-
-    loadScript("/javascripts/Chart.min.js").then(() => {
-      this.resetChart();
-
-      this.chart = new window.Chart(context, chartConfig);
+            beginAtZero: true,
+          },
+        },
+      },
     });
   }
 
+  @action
   resetChart() {
     this.chart?.destroy();
     this.chart = null;
@@ -96,9 +60,9 @@ export default class UsageChart extends Component {
     <div>
       <canvas
         class="chart-canvas"
-        {{didInsert this.setup}}
-        {{didUpdate this.dataChanged @data}}
-        {{willDestroy this.teardown}}
+        {{didInsert this.renderChart}}
+        {{didUpdate this.renderChart @data}}
+        {{willDestroy this.resetChart}}
       ></canvas>
     </div>
   </template>

@@ -18,6 +18,36 @@ RCPCH API access management within Discourse
   - `curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash` (https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt)
 - Log in so the container can access the Azure APIs: `az login --use-device-code` and follow the instructions
 
+## APISIX (Local Development)
+
+- Start APISIX + etcd:
+  - `s/apisix up -d`
+- The APISIX config is mounted from `apisix.conf` to `/usr/local/apisix/conf/config.yaml` in the container.
+- Create a test route:
+
+```bash
+curl -i -X PUT \
+  "http://127.0.0.1:9180/apisix/admin/routes/getting-started-ip" \
+  -H "X-API-KEY: arandomapikeyfordevelopment" \
+  -H "Content-Type: application/json" \
+  --data-raw '{
+    "uri": "/ip",
+    "upstream": {
+      "type": "roundrobin",
+      "nodes": {
+        "httpbin.org:80": 1
+      }
+    }
+  }'
+```
+
+- Verify proxying:
+  - `curl -i "http://127.0.0.1:9080/ip"`
+- Useful commands:
+  - `s/apisix logs -f apisix`
+  - `s/apisix up -d --force-recreate` (reload after config changes)
+  - `s/apisix down`
+
 ## Implemented
 
 - Self service generate API credentials for individuals (ie our free tiers)

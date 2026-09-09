@@ -1,4 +1,4 @@
-import { tracked } from '@glimmer/tracking';
+import { tracked } from "@glimmer/tracking";
 
 export class ApimCredential {
   @tracked apiKey;
@@ -10,10 +10,11 @@ export class ApimCredential {
     this.usage = usage;
   }
 
-  callsThisMonth = () => {
-    const key = moment().format('YYYY-MM');
-    const usageThisMonth = (this.usage ?? []).find(({ month }) => month == key);
+  // Usage months come back from Azure keyed as YYYY-MM.
+  get callsThisMonth() {
+    const now = new Date();
+    const key = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-    return usageThisMonth?.count ?? 0;
+    return (this.usage ?? []).find(({ month }) => month === key)?.count ?? 0;
   }
 }

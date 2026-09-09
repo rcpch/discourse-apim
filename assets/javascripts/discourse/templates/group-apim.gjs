@@ -1,6 +1,6 @@
-import { fn } from "@ember/helper";
+import { fn, hash } from "@ember/helper";
 import RouteTemplate from "ember-route-template";
-import SimpleList from "select-kit/components/simple-list";
+import ListSetting from "discourse/select-kit/components/list-setting";
 import ApimCredential from "../components/apim-credential";
 
 export default RouteTemplate(
@@ -19,8 +19,10 @@ export default RouteTemplate(
             Additional reporting subscriptions (RCPCH administrators only)
           </div>
           API usage through these subscriptions will be assigned to this group.
-          <SimpleList
-            @values={{@model.reportingSubscriptions}}
+          <ListSetting
+            @value={{@model.reportingSubscriptions}}
+            @choices={{@model.reportingSubscriptions}}
+            @options={{hash allowAny=true}}
             @onChange={{@controller.setReportingSubscriptions}}
           />
         </div>

@@ -4,6 +4,8 @@ require_relative '../../services/usage_reporting'
 require_relative '../../services/apim_usage_db'
 
 class ApimController < ::ApplicationController
+  before_action :ensure_logged_in
+
   def find_group(param_name, ensure_can_see: true)
     name = params.require(param_name)
     group = Group.find_by("LOWER(name) = ?", name.downcase)

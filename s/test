@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+run_in_discourse() {
+  local discourse_root="$1"
+  if [[ -f "$discourse_root/Gemfile" ]]; then
+    (cd "$discourse_root" && bundle exec rspec "$ROOT/spec")
+    return 0
+  fi
+  return 1
+}
+
+# If this repo has its own Gemfile, run specs here.
+if [[ -f "$ROOT/Gemfile" ]]; then
+  (cd "$ROOT" && bundle exec rspec)
+  exit 0
+fi
+
+# Prefer explicit env var if provided.
+if [[ -n "${DISCOURSE_DEV_PATH:-}" ]]; then
+  run_in_discourse "$DISCOURSE_DEV_PATH"
+  exit $?
+fi
+
+# Try common local paths.
+for candidate in "$ROOT/../discourse" "$ROOT/../../discourse" "$ROOT/../discourse-for-dev" "$ROOT/../../discourse-for-dev"; do
+  if run_in_discourse "$candidate"; then
+    exit 0
+  fi
+done
+
+echo "Could not find a Discourse dev checkout. Set DISCOURSE_DEV_PATH to the Discourse repo path and retry." >&2
+exit 1

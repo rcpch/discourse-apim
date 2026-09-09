@@ -16,10 +16,8 @@ export default class GroupApimRoute extends Route {
       // Handlebars doesn't have a sensible way to tell a field is missing vs an empty list
       // Only admins can see this list
       showReportingSubscriptions: reporting_subscriptions?.length > -1,
-      // TODO MRB: why can't I just pass a list here?!
       reportingSubscriptions: (reporting_subscriptions ?? [])
         .map(({ name }) => name)
-        .join('\n')
     };
   }
 

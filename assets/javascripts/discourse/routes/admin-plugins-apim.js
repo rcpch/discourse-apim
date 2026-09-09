@@ -1,12 +1,8 @@
-import Route from "@ember/routing/route";
-import { ajax } from "discourse/lib/ajax";
+import DiscourseRoute from "discourse/routes/discourse";
+import { i18n } from "discourse-i18n";
 
-export default class AdminPluginsApimRoute extends Route {
-  // async model() {
-  //   const resp = await ajax(`/apim/usage/report.csv`);
-
-  //   console.log({ resp });
-
-  //   return resp;
-  // }
+export default class AdminPluginsApimRoute extends DiscourseRoute {
+  titleToken() {
+    return i18n("admin.config.apim.title");
+  }
 }
