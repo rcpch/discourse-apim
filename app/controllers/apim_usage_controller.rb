@@ -14,5 +14,7 @@ class ApimUsageController < Admin::AdminController
 
   def refresh
     Jobs.enqueue(:fetch_monthly_usage_data)
+
+    render json: success_json
   end
 end

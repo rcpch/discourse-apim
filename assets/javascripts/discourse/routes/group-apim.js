@@ -1,5 +1,5 @@
-import Route from "@ember/routing/route";
 import { action } from '@ember/object';
+import Route from "@ember/routing/route";
 import { ajax } from "discourse/lib/ajax";
 import { ApimCredential } from "../lib/apim-credential";
 
@@ -17,7 +17,7 @@ export default class GroupApimRoute extends Route {
       // Only admins can see this list
       showReportingSubscriptions: reporting_subscriptions?.length > -1,
       reportingSubscriptions: (reporting_subscriptions ?? [])
-        .map(({ name }) => name)
+        .map((subscription) => subscription.name)
     };
   }
 

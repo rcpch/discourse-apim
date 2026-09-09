@@ -20,7 +20,7 @@ export default class UserApimController extends Controller {
       method: 'POST'
     });
 
-    const credential = this.model.credentials.find(credential => credential.product === product);
+    const credential = this.model.credentials.find((c) => c.product === product);
     credential.apiKey = primaryKey;
   }
 

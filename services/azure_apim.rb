@@ -48,21 +48,26 @@ class AzureAPIM
   # before it expires, so it's fine to call this on every request rather than caching it
   # ourselves.
   def get_access_token
-    if @use_cli
-      access_token_from_cli
-    else
-      begin
-        access_token_from_managed_identity
-      rescue SystemCallError, SocketError, Net::OpenTimeout, Net::ReadTimeout
-        # There's no managed identity to talk to outside of an Azure VM (eg. local dev) -
-        # fall back to the Azure CLI, and remember to do so next time so we don't pay the
-        # metadata service's connection timeout on every request.
-        @use_cli = true
-        access_token_from_cli
-      end
+    return access_token_from_cli if @use_cli
+
+    token = begin
+      access_token_from_managed_identity
+    rescue SystemCallError, SocketError, Net::OpenTimeout, Net::ReadTimeout
+      # There's no metadata service to talk to outside of an Azure VM (eg. local dev).
+      nil
     end
+
+    return token if token
+
+    # Either there's no metadata service, or it has no identity to give us a token for.
+    # Fall back to the Azure CLI, and remember to do so next time so we don't pay the
+    # metadata service's connection timeout on every request.
+    @use_cli = true
+    access_token_from_cli
   end
 
+  # Returns nil rather than raising if this doesn't look like a VM with a managed identity,
+  # so the caller can fall back to the CLI.
   def access_token_from_managed_identity
     url = UrlHelper.encode_and_parse("http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/")
 
@@ -73,12 +78,37 @@ class AzureAPIM
       http.request(request)
     end
 
-    JSON.parse(response.body)['access_token']
+    return nil unless response.is_a?(Net::HTTPSuccess)
+
+    JSON.parse(response.body)['access_token'].presence
+  rescue JSON::ParserError
+    nil
   end
 
   def access_token_from_cli
     # Not running on a VM with a managed identity - fall back to the Azure CLI, eg. for local dev
-    JSON.parse(`az account get-access-token`)['accessToken']
+    output = begin
+      `az account get-access-token --resource https://management.azure.com/ 2>/dev/null`
+    rescue Errno::ENOENT
+      ""
+    end
+
+    token = begin
+      JSON.parse(output)['accessToken'].presence
+    rescue JSON::ParserError
+      nil
+    end
+
+    if token.nil?
+      raise AzureAPIMError.new(
+        "Could not get an Azure access token. On an Azure VM this comes from the managed " \
+        "identity, which needs an RBAC role assignment (eg. API Management Service " \
+        "Contributor) on the resource group. Elsewhere (eg. local development) install the " \
+        "Azure CLI and run `az login`."
+      )
+    end
+
+    token
   end
 
   def request(method, endpoint, params: {}, body: nil)
