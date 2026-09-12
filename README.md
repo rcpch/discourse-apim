@@ -48,6 +48,10 @@ curl -i -X PUT \
   - `s/apisix up -d --force-recreate` (reload after config changes)
   - `s/apisix down`
 
+## Testing against Azure
+
+Development points at whichever APIM instance the site settings name, so pointing it at production means a stray click on "Sign up" creates a real user and subscription. [docs/test-apim-runbook.md](docs/test-apim-runbook.md) walks through standing up a disposable APIM instance with a mock Digital Growth Charts API and its own RBAC, and covers verifying that a role assignment is actually sufficient.
+
 ## Checking Azure connectivity and permissions
 
 `s/azure-smoke-test.rb` exercises every Azure Resource Manager call the plugin makes and reports, per call, whether the identity you're authenticating as is allowed to make it. It creates and changes nothing. Run it from the Discourse root with the plugin's site settings configured:
